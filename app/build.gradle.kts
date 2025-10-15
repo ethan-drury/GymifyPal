@@ -1,3 +1,5 @@
+import java.util.Properties
+import java.io.FileInputStream
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -18,6 +20,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
+        buildConfigField("String", "apiKey", getApiKey("apiKey"))
     }
 
     buildTypes {
@@ -38,6 +41,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -62,4 +66,10 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     ksp(libs.androidx.room.compiler)
+    implementation(libs.generativeai)
 }
+fun getApiKey(property: String): String {
+    val properties = Properties()
+    properties.load(FileInputStream(File(rootProject.rootDir, "local.properties")))
+    return properties.getProperty(property) ?: ""
+}/*https://stackoverflow.com/questions/35722904/saving-the-api-key-in-gradle-properties*/
