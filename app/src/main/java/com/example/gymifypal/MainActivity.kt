@@ -18,6 +18,12 @@ import androidx.compose.ui.unit.dp
 import com.example.gymifypal.ui.theme.GymifyPalTheme
 import com.google.ai.client.generativeai.GenerativeModel
 import kotlinx.coroutines.launch
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
