@@ -14,15 +14,20 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHost
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.gymifypal.ui.theme.GymifyPalTheme
+import kotlin.collections.emptyList
 
 class DatabaseViewActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -68,6 +73,29 @@ fun AllExercisesScreen(
             )
         }
     }
+}
+
+@Preview
+@Composable
+fun Nav(viewModel: ExerciseDatabaseViewModel= ExerciseDatabaseViewModel(LocalContext.current)) {
+    val navController = rememberNavController()
+
+    NavHost(navController = navController,
+        startDestination = "home") {
+        composable("home") {  }
+    }
+}
+
+@Composable
+fun Exercises(
+    modifier: Modifier=Modifier,
+    viewModel: ExerciseDatabaseViewModel= ExerciseDatabaseViewModel(LocalContext.current),
+    navController: NavHostController=NavHostController(LocalContext.current)
+) {
+    var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
+    val exercises = viewModel.getAllExercises().collectAsState(emptyList()).value
+    val selected =
+        if (selectedIndex < exercises.size) exercises[selectedIndex].exerciseName else "Select Week"
 }
 
 
