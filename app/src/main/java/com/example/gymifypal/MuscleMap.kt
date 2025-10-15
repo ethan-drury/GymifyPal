@@ -88,8 +88,56 @@ fun MuscleHeatmapPreview() {
     val muscleList = listOf(
 
         MuscleFatigue(
+            name = "Abdominals",
+            drawableResId = R.drawable.abs,
+            fatigueLevel = bicepsFatigue,
+            onClick = {
+                println("Biceps clicked, current fatigue: $bicepsFatigue")
+            }
+        ),
+        MuscleFatigue(
             name = "Biceps",
-            drawableResId = R.drawable.png_biceps_transparent,
+            drawableResId = R.drawable.biceps,
+            fatigueLevel = bicepsFatigue,
+            onClick = {
+                println("Biceps clicked, current fatigue: $bicepsFatigue")
+            }
+        ),
+        MuscleFatigue(
+                name = "Chest",
+        drawableResId = R.drawable.chest,
+        fatigueLevel = bicepsFatigue,
+        onClick = {
+            println("Biceps clicked, current fatigue: $bicepsFatigue")
+        }
+    ),
+        MuscleFatigue(
+            name = "Front Deltoids",
+            drawableResId = R.drawable.front_deltoids,
+            fatigueLevel = bicepsFatigue,
+            onClick = {
+                println("Biceps clicked, current fatigue: $bicepsFatigue")
+            }
+        ),
+        MuscleFatigue(
+            name = "Side Deltoids",
+            drawableResId = R.drawable.side_deltoids,
+            fatigueLevel = bicepsFatigue,
+            onClick = {
+                println("Biceps clicked, current fatigue: $bicepsFatigue")
+            }
+        ),
+        MuscleFatigue(
+            name = "Front Forearms",
+            drawableResId = R.drawable.front_forearms,
+            fatigueLevel = bicepsFatigue,
+            onClick = {
+                println("Biceps clicked, current fatigue: $bicepsFatigue")
+            }
+        ),
+        MuscleFatigue(
+            name = "quads",
+            drawableResId = R.drawable.quads,
             fatigueLevel = bicepsFatigue,
             onClick = {
                 println("Biceps clicked, current fatigue: $bicepsFatigue")
