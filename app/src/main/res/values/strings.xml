@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">GymifyPal</string>
     <string name="title_activity_muscle_map">MuscleMapActivity</string>
+    <string name="title_activity_database_view">DatabaseViewActivity</string>
 </resources>

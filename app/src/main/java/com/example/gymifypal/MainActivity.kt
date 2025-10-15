@@ -44,5 +44,12 @@ fun MainButtons() {
         }) {
             Text("Click me")
         }
+
+        Button(onClick = {
+            val intent = Intent(context, DatabaseViewActivity::class.java)
+            context.startActivity(intent)
+        }) {
+            Text("Click me!!!")
+        }
     }
 }

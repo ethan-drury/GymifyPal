@@ -12,6 +12,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.GymifyPal">
         <activity
+            android:name=".DatabaseViewActivity"
+            android:exported="false"
+            android:label="@string/title_activity_database_view"
+            android:theme="@style/Theme.GymifyPal" />
+        <activity
             android:name=".MuscleMapActivity"
             android:exported="false"
             android:label="@string/title_activity_muscle_map"

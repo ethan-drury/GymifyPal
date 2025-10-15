@@ -11,4 +11,6 @@ class ExerciseDatabaseViewModel(context: Context) : ViewModel() {
         val db = getDatabase(context)
         mDao = db.UniDao()
     }
+
+    fun getAllExercises() = mDao.allExercises()
 }
