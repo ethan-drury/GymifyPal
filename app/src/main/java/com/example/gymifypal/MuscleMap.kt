@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.annotation.DrawableRes
+import androidx.compose.foundation.background
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -33,7 +34,10 @@ fun MuscleHeatmap(
     muscleFatigues: List<MuscleFatigue>,
     @DrawableRes baseBodyResId: Int
 ) {
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .background(Color.White)
+    ) {
 
         Box(modifier = Modifier.weight(1f)) {
             Image(
@@ -106,7 +110,7 @@ fun MuscleHeatmapPreview() {
         )
         MuscleHeatmap(
             muscleFatigues = muscleList,
-            baseBodyResId = R.drawable.base_anatomy_map
+            baseBodyResId = R.drawable.muscle_map_front
         )
     }
 }
