@@ -79,7 +79,6 @@ fun interpolateColor(fatigueLevel: Float): Color {
 @Preview(showBackground = true)
 @Composable
 fun MuscleHeatmapPreview() {
-
     var bicepsFatigue by remember { mutableFloatStateOf(0.1f) }
 
     val muscleList = listOf(
