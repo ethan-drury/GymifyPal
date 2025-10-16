@@ -15,12 +15,39 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.material3.Slider
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.ThumbUp
+import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberDrawerState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 
 data class MuscleFatigue(
     val name: String,
@@ -80,19 +107,28 @@ fun interpolateColor(fatigueLevel: Float): Color {
     return Color(red, green, blue, alpha)
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
 @Composable
 fun MuscleHeatmapPreview() {
-    var bicepsFatigue by remember { mutableFloatStateOf(0.1f) }
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+
+    var abdominalsFatigue by remember { mutableFloatStateOf(0.0f) }
+    var bicepsFatigue by remember { mutableFloatStateOf(0.0f) }
+    var chestFatigue by remember { mutableFloatStateOf(0.0f) }
+    var frontDeltoidFatigue by remember { mutableFloatStateOf(0.0f) }
+    var sideDeltiodFatigue by remember { mutableFloatStateOf(0.0f) }
+    var frontForearmFatigue by remember { mutableFloatStateOf(0.0f) }
+    var quadsFatigue by remember { mutableFloatStateOf(0.0f) }
 
     val muscleList = listOf(
 
         MuscleFatigue(
             name = "Abdominals",
             drawableResId = R.drawable.abs,
-            fatigueLevel = bicepsFatigue,
+            fatigueLevel = abdominalsFatigue,
             onClick = {
-                println("Biceps clicked, current fatigue: $bicepsFatigue")
             }
         ),
         MuscleFatigue(
@@ -100,65 +136,133 @@ fun MuscleHeatmapPreview() {
             drawableResId = R.drawable.biceps,
             fatigueLevel = bicepsFatigue,
             onClick = {
-                println("Biceps clicked, current fatigue: $bicepsFatigue")
             }
         ),
         MuscleFatigue(
                 name = "Chest",
         drawableResId = R.drawable.chest,
-        fatigueLevel = bicepsFatigue,
+        fatigueLevel = chestFatigue,
         onClick = {
-            println("Biceps clicked, current fatigue: $bicepsFatigue")
         }
     ),
         MuscleFatigue(
             name = "Front Deltoids",
             drawableResId = R.drawable.front_deltoids,
-            fatigueLevel = bicepsFatigue,
+            fatigueLevel = frontDeltoidFatigue,
             onClick = {
-                println("Biceps clicked, current fatigue: $bicepsFatigue")
             }
         ),
         MuscleFatigue(
             name = "Side Deltoids",
             drawableResId = R.drawable.side_deltoids,
-            fatigueLevel = bicepsFatigue,
+            fatigueLevel = sideDeltiodFatigue,
             onClick = {
-                println("Biceps clicked, current fatigue: $bicepsFatigue")
             }
         ),
         MuscleFatigue(
             name = "Front Forearms",
             drawableResId = R.drawable.front_forearms,
-            fatigueLevel = bicepsFatigue,
+            fatigueLevel = frontForearmFatigue,
             onClick = {
-                println("Biceps clicked, current fatigue: $bicepsFatigue")
             }
         ),
         MuscleFatigue(
             name = "quads",
             drawableResId = R.drawable.quads,
-            fatigueLevel = bicepsFatigue,
+            fatigueLevel = quadsFatigue,
             onClick = {
-                println("Biceps clicked, current fatigue: $bicepsFatigue")
             }
         )
     )
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    /*
+    ModalNavigationDrawer code adapted from official docs:
+    https://developer.android.com/develop/ui/compose/components/drawer
+    */
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            ModalDrawerSheet {
+                Text("Drawer title", modifier = Modifier.padding(16.dp))
+                NavigationDrawerItem(
+                    label = { Text("Drawer Item") },
+                    selected = false,
+                    onClick = {
+                        scope.launch { drawerState.close() }
+                    },
+                    icon = { Icon(Icons.Filled.ThumbUp, contentDescription = null)},
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+                )
+                // ...other drawer items
+            }
+        },
+        content = {
+            Scaffold(
+                topBar = {
+                    CenterAlignedTopAppBar(
+                        title = { Text("GymifyPal") },
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = Color.Blue,
+                            titleContentColor = Color.White,
+                            navigationIconContentColor = Color.White,
+                            actionIconContentColor = Color.White
+                        ),
+                        navigationIcon = {
+                            IconButton(onClick = {
+                                scope.launch { drawerState.open() }
+                            }) {
+                                Icon(Icons.Filled.Menu, contentDescription = "Open Nav Menu")
+                            }
+                        },
 
-        Slider(
-            value = bicepsFatigue,
-            onValueChange = { newValue ->
-                bicepsFatigue = newValue.coerceIn(0f, 1f)
-            },
-            steps = 9,
-            valueRange = 0f..1f,
-            modifier = Modifier.padding(16.dp)
-        )
-        MuscleHeatmap(
-            muscleFatigues = muscleList,
-            baseBodyResId = R.drawable.muscle_map_front
-        )
-    }
+                        actions = {
+                            IconButton(onClick = {}) {
+                                Icon(Icons.Filled.Search, contentDescription = "Open Search")
+                            }
+                        }
+                    )
+                },
+
+                bottomBar = {
+                    BottomAppBar(
+                        containerColor = Color.Blue,
+                        contentColor = Color.White,
+                        actions = {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceEvenly
+                            ) {
+                                IconButton(onClick = {}) {
+                                    Icon(
+                                        Icons.Filled.AddCircle, contentDescription = "Open thingy",
+                                        modifier = Modifier.size(200.dp)
+                                    )
+                                }
+                                /*
+                       IconButton(onClick = {}) {
+                           Icon(Icons.Filled.Menu, contentDescription = "Open thingy")
+                       }
+                       */
+
+                            }
+                        }
+                    )
+                }
+            ) { paddingValues ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                ) {
+                    MuscleHeatmap(
+                        muscleFatigues = muscleList,
+                        baseBodyResId = R.drawable.muscle_map_front
+                    )
+                }
+            }
+        }
+    )
+
+
+
 }
