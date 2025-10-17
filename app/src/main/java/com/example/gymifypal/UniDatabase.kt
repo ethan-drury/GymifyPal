@@ -59,6 +59,18 @@ abstract class UniDatabase : RoomDatabase() {
                             reps = 12
                         )
                     )
+
+                    val test2 = dao.insert(
+                        Exercise(
+                            exerciseName = "Bench Press",
+                            type = "Strength",
+                            muscle = "Chest",
+                            difficulty = "Intermediate",
+                            week = 1,
+                            sets = 3,
+                            reps = 8
+                        )
+                    )
                     Log.i("db", "Database Populated")
                 }
             }
