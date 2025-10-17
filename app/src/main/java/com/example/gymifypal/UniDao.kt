@@ -12,4 +12,7 @@ interface UniDao {
 
     @Query("SELECT * FROM Exercise")
     fun allExercises(): Flow<List<Exercise>>
+
+    @Query("DELETE FROM Exercise")
+    fun deleteExercise()
 }
