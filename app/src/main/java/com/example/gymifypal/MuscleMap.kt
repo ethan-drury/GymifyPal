@@ -136,7 +136,11 @@ fun MuscleHeatmap(
                 )
             }
             Button(
-                onClick = onFlipClick,
+                onClick = {
+                    if (rotation % 180f == 0f) {
+                        onFlipClick()
+                    }
+                },
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .padding(1.dp),
@@ -148,14 +152,18 @@ fun MuscleHeatmap(
                 Icon(Icons.Filled.Refresh, contentDescription = "Flip")
             }
             Button(
-                    onClick = onFlipClick,
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(vertical = 1.dp, horizontal = 20.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color.Transparent,
-                contentColor = Color.Gray
-            )
+                onClick = {
+                    if (rotation % 180f == 0f) {
+                        onFlipClick()
+                    }
+                },
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(vertical = 1.dp, horizontal = 20.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent,
+                    contentColor = Color.Gray
+                )
             ) {
             Icon(Icons.Filled.Person, contentDescription = "Flip")
         }
