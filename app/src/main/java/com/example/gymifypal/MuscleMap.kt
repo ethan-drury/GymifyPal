@@ -68,6 +68,7 @@ data class MuscleFatigue(
 fun MuscleHeatmap(
     muscleFatigues: List<MuscleFatigue>,
     onFlipButtonClick: () -> Unit,
+    onBodyViewChange: (Boolean) -> Unit,
     flipTrigger: Boolean
 ) {
     var targetRotation by remember {mutableFloatStateOf(0f)}
@@ -81,6 +82,7 @@ fun MuscleHeatmap(
     )
 
     val onFlipClick by rememberUpdatedState(onFlipButtonClick)
+    val onBodyViewChangeUpdated by rememberUpdatedState(onBodyViewChange)
 
     LaunchedEffect(flipTrigger) {
         if (rotation % 180 == 0f) {
@@ -96,6 +98,8 @@ fun MuscleHeatmap(
                 R.drawable.muscle_map_front
             else
                 R.drawable.muscle_map_back
+
+            onBodyViewChangeUpdated(isCurrentlyFront)
 
             targetRotation = endRotation
         }
@@ -199,16 +203,31 @@ fun MuscleHeatmapPreview() {
 
     val onFlipButtonClick = { flipTrigger = !flipTrigger }
 
+    val onBodyViewChange: (Boolean) -> Unit = { newIsFrontView ->
+        isFrontView = newIsFrontView
+    }
 
-    var abdominalFatigue by remember { mutableFloatStateOf(0.0f) }
-    var bicepsFatigue by remember { mutableFloatStateOf(0.0f) }
-    var chestFatigue by remember { mutableFloatStateOf(0.0f) }
+    // SHOULD ALL BE (0.0f)...
+    // Changed for testing
+    // Front
+    var abdominalFatigue by remember { mutableFloatStateOf(0.5f) }
+    var bicepsFatigue by remember { mutableFloatStateOf(0.3f) }
+    var chestFatigue by remember { mutableFloatStateOf(1.0f) }
     var frontDeltoidFatigue by remember { mutableFloatStateOf(0.0f) }
     var sideDeltoidFatigue by remember { mutableFloatStateOf(0.0f) }
     var frontForearmFatigue by remember { mutableFloatStateOf(0.0f) }
     var quadsFatigue by remember { mutableFloatStateOf(0.0f) }
 
-    val muscleList = listOf(
+    // Back
+    var calvesFatigue by remember { mutableFloatStateOf(0.5f) }
+    var glutesFatigue by remember { mutableFloatStateOf(0.3f) }
+    var hamstringsFatigue by remember { mutableFloatStateOf(1.0f) }
+    var rearDeltoidFatigue by remember { mutableFloatStateOf(0.0f) }
+    var latsFatigue by remember { mutableFloatStateOf(0.0f) }
+    var rearTrapsFatigue by remember { mutableFloatStateOf(0.0f) }
+    var tricepsFatigue by remember { mutableFloatStateOf(0.0f) }
+
+    val frontMuscleList = listOf(
 
         MuscleFatigue(
             name = "Abdominals",
@@ -230,7 +249,7 @@ fun MuscleHeatmapPreview() {
         fatigueLevel = chestFatigue,
         onClick = {
         }
-    ),
+        ),
         MuscleFatigue(
             name = "Front Deltoids",
             drawableResId = R.drawable.front_deltoids,
@@ -260,6 +279,60 @@ fun MuscleHeatmapPreview() {
             }
         )
     )
+
+    val backMuscleList = listOf(
+        MuscleFatigue(
+            name = "Calves",
+            drawableResId = R.drawable.calves,
+            fatigueLevel = calvesFatigue,
+            onClick = {
+            }
+        ),
+        MuscleFatigue(
+            name = "Glutes",
+            drawableResId = R.drawable.glutes,
+            fatigueLevel = glutesFatigue,
+            onClick = {
+            }
+        ),
+        MuscleFatigue(
+            name = "Hamstrings",
+            drawableResId = R.drawable.hamstrings,
+            fatigueLevel = hamstringsFatigue,
+            onClick = {
+            }
+        ),
+        MuscleFatigue(
+            name = "Rear Deltoids",
+            drawableResId = R.drawable.rear_deltoids,
+            fatigueLevel = rearDeltoidFatigue,
+            onClick = {
+            }
+        ),
+        MuscleFatigue(
+            name = "Lats",
+            drawableResId = R.drawable.lats,
+            fatigueLevel = latsFatigue,
+            onClick = {
+            }
+        ),
+        MuscleFatigue(
+            name = "Rear Traps",
+            drawableResId = R.drawable.rear_traps,
+            fatigueLevel = rearTrapsFatigue,
+            onClick = {
+            }
+        ),
+        MuscleFatigue(
+            name = "Triceps",
+            drawableResId = R.drawable.triceps,
+            fatigueLevel = tricepsFatigue,
+            onClick = {
+            }
+        )
+    )
+
+    val currentMuscleList = if (isFrontView) frontMuscleList else backMuscleList
 
     /*
     ModalNavigationDrawer code adapted from official docs:
@@ -343,8 +416,9 @@ fun MuscleHeatmapPreview() {
                     val baseBodyResId = if (isFrontView) R.drawable.muscle_map_front else R.drawable.muscle_map_back
 
                     MuscleHeatmap(
-                        muscleFatigues = muscleList,
+                        muscleFatigues = currentMuscleList,
                         onFlipButtonClick = onFlipButtonClick,
+                        onBodyViewChange = onBodyViewChange,
                         flipTrigger = flipTrigger
                     )
                 }
