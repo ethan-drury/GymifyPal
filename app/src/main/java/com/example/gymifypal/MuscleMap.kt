@@ -14,10 +14,11 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
@@ -25,13 +26,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -42,12 +45,17 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 
 data class MuscleFatigue(
     val name: String,
@@ -59,24 +67,60 @@ data class MuscleFatigue(
 @Composable
 fun MuscleHeatmap(
     muscleFatigues: List<MuscleFatigue>,
-    @DrawableRes baseBodyResId: Int
+    onFlipButtonClick: () -> Unit,
+    flipTrigger: Boolean
 ) {
+    var targetRotation by remember {mutableFloatStateOf(0f)}
+    var isCurrentlyFront by remember { mutableStateOf(false) }
+    var currentBaseBodyResId by remember { mutableStateOf(R.drawable.muscle_map_front) }
+
+    val rotation by animateFloatAsState(
+        targetValue = targetRotation,
+        animationSpec = tween(durationMillis = 500),
+        label = "flip anim"
+    )
+
+    val onFlipClick by rememberUpdatedState(onFlipButtonClick)
+
+    LaunchedEffect(flipTrigger) {
+        if (rotation % 180 == 0f) {
+            val startRotation = targetRotation
+            val midRotation = startRotation + 90f
+            val endRotation = startRotation + 180f
+
+            targetRotation = midRotation
+            delay(250)
+
+            isCurrentlyFront = !isCurrentlyFront
+            currentBaseBodyResId = if (isCurrentlyFront)
+                R.drawable.muscle_map_front
+            else
+                R.drawable.muscle_map_back
+
+            targetRotation = endRotation
+        }
+    }
     Column(modifier = Modifier
         .fillMaxSize()
         .background(Color.White)
     ) {
 
         Box(modifier = Modifier.weight(1f)) {
+
+            val baseImageModifier = Modifier
+                .fillMaxSize()
+                .graphicsLayer {
+                    rotationY = rotation
+                    cameraDistance = 8 * density
+                }
             Image(
-                painter = painterResource(id = baseBodyResId),
+                painter = painterResource(id = currentBaseBodyResId),
                 contentDescription = "Base Anatomy Map",
-                modifier = Modifier.fillMaxSize()
+                modifier = baseImageModifier
             )
 
             muscleFatigues.forEach { muscle ->
-                val targetColor = interpolateColor(muscle.fatigueLevel)
-
-                val staticColor = targetColor
+                val staticColor = interpolateColor(muscle.fatigueLevel)
 
                 Image(
                     painter = painterResource(id = muscle.drawableResId),
@@ -85,8 +129,36 @@ fun MuscleHeatmap(
                     modifier = Modifier
                         .fillMaxSize()
                         .clickable(onClick = muscle.onClick)
+                        .graphicsLayer{
+                            rotationY = rotation
+                            cameraDistance = 8 * density
+                        }
                 )
             }
+            Button(
+                onClick = onFlipClick,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(1.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent,
+                    contentColor = Color.Gray
+                )
+            ) {
+                Icon(Icons.Filled.Refresh, contentDescription = "Flip")
+            }
+            Button(
+                    onClick = onFlipClick,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(vertical = 1.dp, horizontal = 20.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.Transparent,
+                contentColor = Color.Gray
+            )
+            ) {
+            Icon(Icons.Filled.Person, contentDescription = "Flip")
+        }
         }
     }
 }
@@ -114,11 +186,17 @@ fun MuscleHeatmapPreview() {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    var abdominalsFatigue by remember { mutableFloatStateOf(0.0f) }
+    var isFrontView by remember { mutableStateOf(true) }
+    var flipTrigger by remember { mutableStateOf(false) }
+
+    val onFlipButtonClick = { flipTrigger = !flipTrigger }
+
+
+    var abdominalFatigue by remember { mutableFloatStateOf(0.0f) }
     var bicepsFatigue by remember { mutableFloatStateOf(0.0f) }
     var chestFatigue by remember { mutableFloatStateOf(0.0f) }
     var frontDeltoidFatigue by remember { mutableFloatStateOf(0.0f) }
-    var sideDeltiodFatigue by remember { mutableFloatStateOf(0.0f) }
+    var sideDeltoidFatigue by remember { mutableFloatStateOf(0.0f) }
     var frontForearmFatigue by remember { mutableFloatStateOf(0.0f) }
     var quadsFatigue by remember { mutableFloatStateOf(0.0f) }
 
@@ -127,7 +205,7 @@ fun MuscleHeatmapPreview() {
         MuscleFatigue(
             name = "Abdominals",
             drawableResId = R.drawable.abs,
-            fatigueLevel = abdominalsFatigue,
+            fatigueLevel = abdominalFatigue,
             onClick = {
             }
         ),
@@ -155,7 +233,7 @@ fun MuscleHeatmapPreview() {
         MuscleFatigue(
             name = "Side Deltoids",
             drawableResId = R.drawable.side_deltoids,
-            fatigueLevel = sideDeltiodFatigue,
+            fatigueLevel = sideDeltoidFatigue,
             onClick = {
             }
         ),
@@ -254,9 +332,12 @@ fun MuscleHeatmapPreview() {
                         .fillMaxSize()
                         .padding(paddingValues)
                 ) {
+                    val baseBodyResId = if (isFrontView) R.drawable.muscle_map_front else R.drawable.muscle_map_back
+
                     MuscleHeatmap(
                         muscleFatigues = muscleList,
-                        baseBodyResId = R.drawable.muscle_map_front
+                        onFlipButtonClick = onFlipButtonClick,
+                        flipTrigger = flipTrigger
                     )
                 }
             }
