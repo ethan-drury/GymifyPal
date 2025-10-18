@@ -1,5 +1,6 @@
 package com.example.gymifypal
 
+import android.graphics.Bitmap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -17,6 +18,7 @@ import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -44,6 +46,7 @@ import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
@@ -53,16 +56,96 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
 import com.google.ai.client.generativeai.GenerativeModel
 import kotlinx.coroutines.launch
+//for alpha stuff
+import androidx.compose.ui.unit.IntSize
+import android.graphics.BitmapFactory
+import android.util.Log
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
+
+/*
+ * Makes a transparent overlay that uses a bitmap to check the alpha val
+ * of a clicked pixel.
+ * Its not super accurate yet, but its a start...
+ */
+@Composable
+fun AlphaClickLayer(
+  modifier: Modifier,
+  muscleFatigues: List<MuscleFatigue>,
+  rotationY: Float
+) {
+  val context = LocalContext.current
+  val scope = rememberCoroutineScope()
+
+  val bitmaps = remember(muscleFatigues) {
+    muscleFatigues.associate { muscle ->
+      try {
+        muscle.drawableResId to BitmapFactory.decodeResource(context.resources, muscle.drawableResId)
+      } catch (e: Exception) {
+        null to null
+      }
+    }.filterValues { it != null }.mapKeys { it.key as Int } as Map<Int, android.graphics.Bitmap>
+  }
+
+  var containerSize by remember { mutableStateOf(IntSize.Zero) }
+
+  Box(
+    modifier = modifier
+    .onSizeChanged { containerSize = it }
+    .graphicsLayer {
+      this.rotationY = rotationY
+      cameraDistance = 8 * density
+    }
+    .pointerInput(muscleFatigues, containerSize, rotationY) {
+      detectTapGestures { offset ->
+        // Ignore clicks when the view is flippin
+        if (rotationY % 180f != 0f) return@detectTapGestures
+
+        if (containerSize.width == 0 || containerSize.height == 0) return@detectTapGestures
+
+        val containerWidth = containerSize.width.toFloat()
+        val containerHeight = containerSize.height.toFloat()
+
+        val clickedMuscle = muscleFatigues.find { muscle ->
+          val bitmap = bitmaps[muscle.drawableResId] ?: return@find false
+
+          val scaleX = bitmap.width.toFloat() / containerWidth
+          val scaleY = bitmap.height.toFloat() / containerHeight
+
+          val x = (offset.x * scaleX).toInt().coerceIn(0, bitmap.width - 1)
+          val y = (offset.y * scaleY).toInt().coerceIn(0, bitmap.height - 1)
+
+          // Check the pixel alpha
+          val pixel = bitmap.getPixel(x, y)
+          val alpha = android.graphics.Color.alpha(pixel)
+
+          alpha > 10// true for if first non transparent layer
+        }
+
+        if (clickedMuscle != null) {
+          scope.launch {
+            clickedMuscle.onClick(clickedMuscle.name)
+          }
+        }
+      }
+    }
+  ) {}
+}
+
 data class MuscleFatigue(
     val name: String,
     @DrawableRes val drawableResId: Int,
     val fatigueLevel: Float = 0f,
-    val onClick: () -> Unit = {}
+    val onClick: (message: String) -> Unit = {}
 )
 
 @Composable
@@ -105,6 +188,9 @@ fun MuscleHeatmap(
             targetRotation = endRotation
         }
     }
+
+    val density = LocalDensity.current
+
     Column(modifier = Modifier
         .fillMaxSize()
         .background(Color.White)
@@ -116,12 +202,13 @@ fun MuscleHeatmap(
                 .fillMaxSize()
                 .graphicsLayer {
                     rotationY = rotation
-                    cameraDistance = 8 * density
+                    //cameraDistance = 8 * density
+                    cameraDistance = 8f
                 }
             Image(
                 painter = painterResource(id = currentBaseBodyResId),
                 contentDescription = "Base Anatomy Map",
-                modifier = baseImageModifier
+                modifier = baseImageModifier 
             )
 
             muscleFatigues.forEach { muscle ->
@@ -133,13 +220,20 @@ fun MuscleHeatmap(
                     colorFilter = ColorFilter.tint(staticColor, blendMode = BlendMode.SrcIn),
                     modifier = Modifier
                         .fillMaxSize()
-                        .clickable(onClick = muscle.onClick)
                         .graphicsLayer{
                             rotationY = rotation
-                            cameraDistance = 8 * density
+                            //cameraDistance = 8 * density
+                            cameraDistance = 8f
                         }
                 )
             }
+
+            AlphaClickLayer(
+              modifier = Modifier.fillMaxSize(),
+              muscleFatigues = muscleFatigues,
+              rotationY = rotation
+            )
+
             Button(
                 onClick = {
                     if (rotation % 180f == 0f) {
@@ -156,6 +250,7 @@ fun MuscleHeatmap(
             ) {
                 Icon(Icons.Filled.Refresh, contentDescription = "Flip")
             }
+
             Button(
                 onClick = {
                     if (rotation % 180f == 0f) {
@@ -198,6 +293,8 @@ fun interpolateColor(fatigueLevel: Float): Color {
 fun MuscleHeatmapPreview() {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+
+    val snackbarHostState = remember { SnackbarHostState() }
 
     var isFrontView by remember { mutableStateOf(true) }
     var flipTrigger by remember { mutableStateOf(false) }
@@ -245,56 +342,61 @@ fun MuscleHeatmapPreview() {
     var rearTrapsFatigue by remember { mutableFloatStateOf(0.0f) }
     var tricepsFatigue by remember { mutableFloatStateOf(0.0f) }
 
+
+    val showMuscleNameMessage: (String) -> Unit = { muscleName ->
+    scope.launch{
+      snackbarHostState.showSnackbar(
+        message = "Clicked: $muscleName",
+        actionLabel = "Aight"
+      )
+    }
+  }
+
     val frontMuscleList = listOf(
 
         MuscleFatigue(
             name = "Abdominals",
             drawableResId = R.drawable.abs,
             fatigueLevel = abdominalFatigue,
-            onClick = {
-            }
+            onClick = showMuscleNameMessage
         ),
         MuscleFatigue(
             name = "Biceps",
             drawableResId = R.drawable.biceps,
             fatigueLevel = bicepsFatigue,
-            onClick = {
-            }
+            onClick = showMuscleNameMessage
         ),
         MuscleFatigue(
-                name = "Chest",
-        drawableResId = R.drawable.chest,
-        fatigueLevel = chestFatigue,
-        onClick = {
-        }
+            name = "Chest",
+            drawableResId = R.drawable.chest,
+            fatigueLevel = chestFatigue,
+            onClick = showMuscleNameMessage
+        
         ),
         MuscleFatigue(
             name = "Front Deltoids",
             drawableResId = R.drawable.front_deltoids,
             fatigueLevel = frontDeltoidFatigue,
-            onClick = {
-            }
+            onClick = showMuscleNameMessage
+            
         ),
         MuscleFatigue(
             name = "Side Deltoids",
             drawableResId = R.drawable.side_deltoids,
             fatigueLevel = sideDeltoidFatigue,
-            onClick = {
-            }
+            onClick = showMuscleNameMessage
         ),
         MuscleFatigue(
             name = "Front Forearms",
             drawableResId = R.drawable.front_forearms,
             fatigueLevel = frontForearmFatigue,
-            onClick = {
-            }
+            onClick = showMuscleNameMessage
         ),
         MuscleFatigue(
             name = "quads",
             drawableResId = R.drawable.quads,
             fatigueLevel = quadsFatigue,
-            onClick = {
-            }
+            onClick = showMuscleNameMessage
         )
     )
 
@@ -303,50 +405,43 @@ fun MuscleHeatmapPreview() {
             name = "Calves",
             drawableResId = R.drawable.calves,
             fatigueLevel = calvesFatigue,
-            onClick = {
-            }
+            onClick = showMuscleNameMessage
         ),
         MuscleFatigue(
             name = "Glutes",
             drawableResId = R.drawable.glutes,
             fatigueLevel = glutesFatigue,
-            onClick = {
-            }
+            onClick = showMuscleNameMessage
         ),
         MuscleFatigue(
             name = "Hamstrings",
             drawableResId = R.drawable.hamstrings,
             fatigueLevel = hamstringsFatigue,
-            onClick = {
-            }
+            onClick = showMuscleNameMessage
         ),
         MuscleFatigue(
             name = "Rear Deltoids",
             drawableResId = R.drawable.rear_deltoids,
             fatigueLevel = rearDeltoidFatigue,
-            onClick = {
-            }
+            onClick = showMuscleNameMessage
         ),
         MuscleFatigue(
             name = "Lats",
             drawableResId = R.drawable.lats,
             fatigueLevel = latsFatigue,
-            onClick = {
-            }
+            onClick = showMuscleNameMessage
         ),
         MuscleFatigue(
             name = "Rear Traps",
             drawableResId = R.drawable.rear_traps,
             fatigueLevel = rearTrapsFatigue,
-            onClick = {
-            }
+            onClick = showMuscleNameMessage
         ),
         MuscleFatigue(
             name = "Triceps",
             drawableResId = R.drawable.triceps,
             fatigueLevel = tricepsFatigue,
-            onClick = {
-            }
+            onClick = showMuscleNameMessage
         )
     )
 
@@ -375,6 +470,7 @@ fun MuscleHeatmapPreview() {
         },
         content = {
             Scaffold(
+              snackbarHost = {SnackbarHost(snackbarHostState)},
                 topBar = {
                     CenterAlignedTopAppBar(
                         title = { Text("GymifyPal") },
