@@ -56,7 +56,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
-
+import com.google.ai.client.generativeai.GenerativeModel
+import kotlinx.coroutines.launch
 data class MuscleFatigue(
     val name: String,
     @DrawableRes val drawableResId: Int,
@@ -201,12 +202,29 @@ fun MuscleHeatmapPreview() {
     var isFrontView by remember { mutableStateOf(true) }
     var flipTrigger by remember { mutableStateOf(false) }
 
+    var showAiSuggestion by remember { mutableStateOf(false) }
+    var aiResponse by remember { mutableStateOf("") }
+    var isLoadingAi by remember { mutableStateOf(false) }
+
     val onFlipButtonClick = { flipTrigger = !flipTrigger }
 
     val onBodyViewChange: (Boolean) -> Unit = { newIsFrontView ->
         isFrontView = newIsFrontView
     }
 
+    fun geminiQuery() {
+        scope.launch {
+            isLoadingAi = true
+            val model = GenerativeModel(
+                modelName = "gemini-2.5-flash-lite",
+                apiKey = BuildConfig.apiKey
+            )
+            val response = model.generateContent("What area of my body should I work out today only give me one response and " +
+                    "tell me the muscle area and nothing else randomize it every time")
+            aiResponse = response.text ?: "No response"
+            isLoadingAi = false
+        }
+    }
     // SHOULD ALL BE (0.0f)...
     // Changed for testing
     // Front
@@ -375,8 +393,16 @@ fun MuscleHeatmapPreview() {
                         },
 
                         actions = {
-                            IconButton(onClick = {}) {
-                                Icon(Icons.Filled.Search, contentDescription = "Open Search")
+                            IconButton(onClick = {
+                                if (!showAiSuggestion) {
+                                    showAiSuggestion = true
+                                    if (!isLoadingAi && aiResponse.isEmpty()) geminiQuery()
+                                } else {
+                                    showAiSuggestion = false
+                                    aiResponse = ""
+                                }
+                            }) {
+                                Icon(Icons.Filled.Search, contentDescription = "AI Suggestion")
                             }
                         }
                     )
@@ -413,6 +439,27 @@ fun MuscleHeatmapPreview() {
                         .fillMaxSize()
                         .padding(paddingValues)
                 ) {
+                    if (showAiSuggestion) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 10.dp, vertical = 8.dp)
+                        ) {
+                            Text(text =(aiResponse))
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 8.dp)
+                            ) {
+                                Button(
+
+                                    onClick = { if (!isLoadingAi) geminiQuery()},
+                                    enabled = !isLoadingAi
+                                ) { Text("Refresh") }
+                            }
+                        }
+                    }
+
                     val baseBodyResId = if (isFrontView) R.drawable.muscle_map_front else R.drawable.muscle_map_back
 
                     MuscleHeatmap(
