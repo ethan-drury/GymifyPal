@@ -76,69 +76,74 @@ import androidx.compose.ui.platform.LocalDensity
  * Makes a transparent overlay that uses a bitmap to check the alpha val
  * of a clicked pixel.
  * Its not super accurate yet, but its a start...
+ *
+ * TODO:
+ * fix muscles 'hitboxes' being wider than they should be
  */
 @Composable
 fun AlphaClickLayer(
-  modifier: Modifier,
-  muscleFatigues: List<MuscleFatigue>,
-  rotationY: Float
+    modifier: Modifier,
+    muscleFatigues: List<MuscleFatigue>,
+    rotationY: Float
 ) {
-  val context = LocalContext.current
-  val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
-  val bitmaps = remember(muscleFatigues) {
-    muscleFatigues.associate { muscle ->
-      try {
-        muscle.drawableResId to BitmapFactory.decodeResource(context.resources, muscle.drawableResId)
-      } catch (e: Exception) {
-        null to null
-      }
-    }.filterValues { it != null }.mapKeys { it.key as Int } as Map<Int, android.graphics.Bitmap>
-  }
-
-  var containerSize by remember { mutableStateOf(IntSize.Zero) }
-
-  Box(
-    modifier = modifier
-    .onSizeChanged { containerSize = it }
-    .graphicsLayer {
-      this.rotationY = rotationY
-      cameraDistance = 8 * density
+    val bitmaps = remember(muscleFatigues) {
+        muscleFatigues.associate { muscle ->
+            try {
+                muscle.drawableResId to BitmapFactory.decodeResource(context.resources, muscle.drawableResId)
+            } catch (e: Exception) {
+                null to null
+            }
+        }.filterValues { it != null }.mapKeys { it.key as Int } as Map<Int, android.graphics.Bitmap>
     }
-    .pointerInput(muscleFatigues, containerSize, rotationY) {
-      detectTapGestures { offset ->
-        // Ignore clicks when the view is flippin
-        if (rotationY % 180f != 0f) return@detectTapGestures
 
-        if (containerSize.width == 0 || containerSize.height == 0) return@detectTapGestures
+    var containerSize by remember { mutableStateOf(IntSize.Zero) }
 
-        val containerWidth = containerSize.width.toFloat()
-        val containerHeight = containerSize.height.toFloat()
+    Box(
+        modifier = modifier
+            .onSizeChanged { containerSize = it }
+            .graphicsLayer {
+                this.rotationY = rotationY
+                cameraDistance = 8 * density
+            }
+            .pointerInput(muscleFatigues, containerSize, rotationY) {
+                detectTapGestures { offset ->
+                    // Ignore clicks when the view is flippin
+                    if (rotationY % 180f != 0f) return@detectTapGestures
 
-        val clickedMuscle = muscleFatigues.find { muscle ->
-          val bitmap = bitmaps[muscle.drawableResId] ?: return@find false
+                    // Ignore clicks if container not measured
+                    if (containerSize.width == 0 || containerSize.height == 0) return@detectTapGestures
 
-          val scaleX = bitmap.width.toFloat() / containerWidth
-          val scaleY = bitmap.height.toFloat() / containerHeight
+                    val containerWidth = containerSize.width.toFloat()
+                    val containerHeight = containerSize.height.toFloat()
 
-          val x = (offset.x * scaleX).toInt().coerceIn(0, bitmap.width - 1)
-          val y = (offset.y * scaleY).toInt().coerceIn(0, bitmap.height - 1)
+                    //Iterate through each muscle layer until reaches a non transparent layer
+                    val clickedMuscle = muscleFatigues.find { muscle ->
+                        val bitmap = bitmaps[muscle.drawableResId] ?: return@find false
 
-          // Check the pixel alpha
-          val pixel = bitmap.getPixel(x, y)
-          val alpha = android.graphics.Color.alpha(pixel)
+                        val scaleX = bitmap.width.toFloat() / containerWidth
+                        val scaleY = bitmap.height.toFloat() / containerHeight
 
-          alpha > 10// true for if first non transparent layer
-        }
+                        val x = (offset.x * scaleX).toInt().coerceIn(0, bitmap.width - 1)
+                        val y = (offset.y * scaleY).toInt().coerceIn(0, bitmap.height - 1)
 
-        if (clickedMuscle != null) {
-          scope.launch {
-            clickedMuscle.onClick(clickedMuscle.name)
-          }
-        }
-      }
-    }
-  ) {}
+                        // Check the pixel alpha
+                        val pixel = bitmap.getPixel(x, y)
+                        val alpha = android.graphics.Color.alpha(pixel)
+
+                        alpha > 1// true for if not transparent layer
+                    }
+
+                    if (clickedMuscle != null) {
+                        scope.launch {
+                            clickedMuscle.onClick(clickedMuscle.name)
+                        }
+                    }
+                }
+            }
+    )
 }
 
 data class MuscleFatigue(
@@ -208,7 +213,7 @@ fun MuscleHeatmap(
             Image(
                 painter = painterResource(id = currentBaseBodyResId),
                 contentDescription = "Base Anatomy Map",
-                modifier = baseImageModifier 
+                modifier = baseImageModifier
             )
 
             muscleFatigues.forEach { muscle ->
@@ -229,9 +234,9 @@ fun MuscleHeatmap(
             }
 
             AlphaClickLayer(
-              modifier = Modifier.fillMaxSize(),
-              muscleFatigues = muscleFatigues,
-              rotationY = rotation
+                modifier = Modifier.fillMaxSize(),
+                muscleFatigues = muscleFatigues,
+                rotationY = rotation
             )
 
             Button(
@@ -265,8 +270,8 @@ fun MuscleHeatmap(
                     contentColor = Color.Gray
                 )
             ) {
-            Icon(Icons.Filled.Person, contentDescription = "Flip")
-        }
+                Icon(Icons.Filled.Person, contentDescription = "Flip")
+            }
         }
     }
 }
@@ -344,13 +349,13 @@ fun MuscleHeatmapPreview() {
 
 
     val showMuscleNameMessage: (String) -> Unit = { muscleName ->
-    scope.launch{
-      snackbarHostState.showSnackbar(
-        message = "Clicked: $muscleName",
-        actionLabel = "Aight"
-      )
+        scope.launch{
+            snackbarHostState.showSnackbar(
+                message = "Clicked: $muscleName",
+                actionLabel = "Aight"
+            )
+        }
     }
-  }
 
     val frontMuscleList = listOf(
 
@@ -371,14 +376,14 @@ fun MuscleHeatmapPreview() {
             drawableResId = R.drawable.chest,
             fatigueLevel = chestFatigue,
             onClick = showMuscleNameMessage
-        
+
         ),
         MuscleFatigue(
             name = "Front Deltoids",
             drawableResId = R.drawable.front_deltoids,
             fatigueLevel = frontDeltoidFatigue,
             onClick = showMuscleNameMessage
-            
+
         ),
         MuscleFatigue(
             name = "Side Deltoids",
@@ -470,7 +475,7 @@ fun MuscleHeatmapPreview() {
         },
         content = {
             Scaffold(
-              snackbarHost = {SnackbarHost(snackbarHostState)},
+                snackbarHost = {SnackbarHost(snackbarHostState)},
                 topBar = {
                     CenterAlignedTopAppBar(
                         title = { Text("GymifyPal") },
