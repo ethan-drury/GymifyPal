@@ -63,10 +63,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
 import com.google.ai.client.generativeai.GenerativeModel
 import kotlinx.coroutines.launch
-//for alpha stuff
 import androidx.compose.ui.unit.IntSize
 import android.graphics.BitmapFactory
 import android.util.Log
+import android.widget.Button
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.layout.onSizeChanged
@@ -172,26 +175,30 @@ fun MuscleHeatmap(
 
     val onFlipClick by rememberUpdatedState(onFlipButtonClick)
     val onBodyViewChangeUpdated by rememberUpdatedState(onBodyViewChange)
+    var isFlipping by remember { mutableStateOf(false) }
 
     LaunchedEffect(flipTrigger) {
-        if (rotation % 180 == 0f) {
-            val startRotation = targetRotation
-            val midRotation = startRotation + 90f
-            val endRotation = startRotation + 180f
+        isFlipping = true
 
-            targetRotation = midRotation
-            delay(250)
+        val startRotation = targetRotation
+        val midRotation = startRotation + 90f
+        val endRotation = startRotation + 180f
 
-            isCurrentlyFront = !isCurrentlyFront
-            currentBaseBodyResId = if (isCurrentlyFront)
-                R.drawable.muscle_map_front
-            else
-                R.drawable.muscle_map_back
+        targetRotation = midRotation
+        delay(250)
 
-            onBodyViewChangeUpdated(isCurrentlyFront)
+        isCurrentlyFront = !isCurrentlyFront
+        currentBaseBodyResId = if (isCurrentlyFront)
+            R.drawable.muscle_map_front
+        else
+            R.drawable.muscle_map_back
 
-            targetRotation = endRotation
-        }
+        onBodyViewChangeUpdated(isCurrentlyFront)
+
+        targetRotation = endRotation
+
+        delay(250)
+        isFlipping = false
     }
 
     val density = LocalDensity.current
@@ -239,39 +246,6 @@ fun MuscleHeatmap(
                 rotationY = rotation
             )
 
-            Button(
-                onClick = {
-                    if (rotation % 180f == 0f) {
-                        onFlipClick()
-                    }
-                },
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(1.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent,
-                    contentColor = Color.Gray
-                )
-            ) {
-                Icon(Icons.Filled.Refresh, contentDescription = "Flip")
-            }
-
-            Button(
-                onClick = {
-                    if (rotation % 180f == 0f) {
-                        onFlipClick()
-                    }
-                },
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(vertical = 1.dp, horizontal = 20.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent,
-                    contentColor = Color.Gray
-                )
-            ) {
-                Icon(Icons.Filled.Person, contentDescription = "Flip")
-            }
         }
     }
 }
@@ -303,10 +277,19 @@ fun MuscleHeatmapPreview() {
 
     var isFrontView by remember { mutableStateOf(true) }
     var flipTrigger by remember { mutableStateOf(false) }
+    var isFlipping by remember { mutableStateOf(false) }
 
     var showAiSuggestion by remember { mutableStateOf(false) }
     var aiResponse by remember { mutableStateOf("") }
     var isLoadingAi by remember { mutableStateOf(false) }
+
+    val onEditButtonClick: () -> Unit = {
+        scope.launch {
+            snackbarHostState.showSnackbar(
+                message = "Choose a Muscle to change its fatigue level"
+            )
+        }
+    }
 
     val onFlipButtonClick = { flipTrigger = !flipTrigger }
 
@@ -533,7 +516,22 @@ fun MuscleHeatmapPreview() {
                             }
                         }
                     )
-                }
+                },
+                floatingActionButton = {
+                    FloatingActionButton(
+                        onClick = {
+                                if (!showAiSuggestion) {
+                                    showAiSuggestion = true
+                                    if (!isLoadingAi && aiResponse.isEmpty()) geminiQuery()
+                                } else {
+                                    showAiSuggestion = false
+                                    aiResponse = ""
+                                }
+                            }
+                    ){
+                        Icon(Icons.Filled.Favorite, contentDescription = "AI")
+                    }
+                },
             ) { paddingValues ->
                 Column(
                     modifier = Modifier
@@ -546,7 +544,7 @@ fun MuscleHeatmapPreview() {
                                 .fillMaxWidth()
                                 .padding(horizontal = 10.dp, vertical = 8.dp)
                         ) {
-                            Text(text =(aiResponse))
+                            Text(text = (aiResponse))
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -554,21 +552,63 @@ fun MuscleHeatmapPreview() {
                             ) {
                                 Button(
 
-                                    onClick = { if (!isLoadingAi) geminiQuery()},
+                                    onClick = { if (!isLoadingAi) geminiQuery() },
                                     enabled = !isLoadingAi
                                 ) { Text("Refresh") }
                             }
                         }
                     }
 
-                    val baseBodyResId = if (isFrontView) R.drawable.muscle_map_front else R.drawable.muscle_map_back
 
-                    MuscleHeatmap(
-                        muscleFatigues = currentMuscleList,
-                        onFlipButtonClick = onFlipButtonClick,
-                        onBodyViewChange = onBodyViewChange,
-                        flipTrigger = flipTrigger
-                    )
+                    Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
+
+
+                        MuscleHeatmap(
+                            muscleFatigues = currentMuscleList,
+                            onFlipButtonClick = onFlipButtonClick,
+                            onBodyViewChange = onBodyViewChange,
+                            flipTrigger = flipTrigger
+                        )
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                                .background(color = Color.Transparent),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Button(
+                                onClick = onEditButtonClick,
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color.Transparent,
+                                    contentColor = Color.Gray
+                                )
+                            ) {
+                                Icon(
+                                    Icons.Filled.Edit,
+                                    contentDescription = "Edit Fatigue levels manually"
+                                )
+                            }
+                            Row {
+
+                                Button(
+                                    onClick = onFlipButtonClick,
+                                    enabled = !isFlipping,
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = Color.Transparent,
+                                        contentColor = Color.Gray
+                                    )
+
+                                ) {
+                                    Icon(Icons.Filled.Refresh, contentDescription = "Flip")
+                                }
+
+                            }
+                        }
+
+                        val baseBodyResId =
+                            if (isFrontView) R.drawable.muscle_map_front else R.drawable.muscle_map_back
+
+                    }
                 }
             }
         }

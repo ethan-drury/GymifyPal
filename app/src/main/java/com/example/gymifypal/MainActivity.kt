@@ -33,6 +33,7 @@ class MainActivity : ComponentActivity() {
             GymifyPalTheme {
                 MainButtons()
             }
+            MuscleHeatmapPreview()
         }
     }
 }
