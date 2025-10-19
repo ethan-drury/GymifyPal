@@ -67,6 +67,7 @@ import androidx.compose.ui.unit.IntSize
 import android.graphics.BitmapFactory
 import android.util.Log
 import android.widget.Button
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.FloatingActionButton
@@ -527,7 +528,8 @@ fun MuscleHeatmapPreview() {
                                     showAiSuggestion = false
                                     aiResponse = ""
                                 }
-                            }
+                            },
+                        shape = CircleShape
                     ){
                         Icon(Icons.Filled.Favorite, contentDescription = "AI")
                     }
