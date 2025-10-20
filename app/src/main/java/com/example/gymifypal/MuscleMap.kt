@@ -1,5 +1,6 @@
 package com.example.gymifypal
 
+import android.content.Intent
 import android.graphics.Bitmap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -70,8 +71,11 @@ import android.widget.Button
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material3.Card
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
@@ -283,6 +287,17 @@ fun MuscleHeatmapPreview() {
     var showAiSuggestion by remember { mutableStateOf(false) }
     var aiResponse by remember { mutableStateOf("") }
     var isLoadingAi by remember { mutableStateOf(false) }
+
+
+    val context = LocalContext.current
+    var isLoading by remember { mutableStateOf(false) }
+    /*
+    modal bottom sheet code adapted from official docs
+    https://developer.android.com/develop/ui/compose/components/bottom-sheets
+     */
+    val sheetState = rememberModalBottomSheetState()
+    //val scope = rememberCoroutineScope()
+    var showBottomSheet by remember { mutableStateOf(false) }
 
     val onEditButtonClick: () -> Unit = {
         scope.launch {
@@ -503,7 +518,9 @@ fun MuscleHeatmapPreview() {
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceEvenly
                             ) {
-                                IconButton(onClick = {}) {
+                                IconButton(onClick = {
+                                    showBottomSheet = true
+                                }) {
                                     Icon(
                                         Icons.Filled.AddCircle, contentDescription = "Open thingy",
                                         modifier = Modifier.size(200.dp)
@@ -562,6 +579,59 @@ fun MuscleHeatmapPreview() {
                         }
                     }
 
+                    /*
+                    Adapted from official docs
+                     */
+                    if (showBottomSheet) {
+                        ModalBottomSheet(
+                            onDismissRequest = {
+                                showBottomSheet = false
+                            },
+                            sheetState = sheetState
+                        ) {
+                            // Sheet content
+
+                            Column(
+                            ) {
+                                Button(onClick = {
+                                    val intent = Intent(context, MuscleMapActivity::class.java)
+                                    context.startActivity(intent)
+                                }) {
+                                    Text("Click me")
+                                }
+                                Button(onClick = {
+                                    val intent = Intent(context, DatabaseViewActivity::class.java)
+                                    context.startActivity(intent)
+                                }) {
+                                    Text("Click me!!!")
+                                }
+                                Button(onClick = {
+                                    scope.launch {
+                                        isLoading = true
+                                        val model = GenerativeModel(
+                                            modelName = "gemini-2.5-flash-lite",
+                                            apiKey = BuildConfig.apiKey
+                                        )
+                                        val response = model.generateContent("What area of my body should I work out today only give me one response and " +
+                                                "tell me the muscle area and nothing else randomize it every time")
+                                        aiResponse = response.text ?: "No response"
+                                        isLoading = false
+                                    }
+                                }
+                                ) {
+                                    Text("AI")
+                                }
+                                if (aiResponse.isNotEmpty()) {
+                                    Card(modifier = Modifier.fillMaxWidth()) {
+                                        Text(
+                                            text = aiResponse,
+                                            modifier = Modifier.padding(20.dp)
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
 
                     Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
 
