@@ -166,7 +166,8 @@ fun MuscleHeatmap(
     muscleFatigues: List<MuscleFatigue>,
     onFlipButtonClick: () -> Unit,
     onBodyViewChange: (Boolean) -> Unit,
-    flipTrigger: Boolean
+    flipTrigger: Boolean,
+    onIsFlipping: (Boolean) -> Unit
 ) {
     var targetRotation by remember {mutableFloatStateOf(0f)}
     var isCurrentlyFront by remember { mutableStateOf(false) }
@@ -180,10 +181,9 @@ fun MuscleHeatmap(
 
     val onFlipClick by rememberUpdatedState(onFlipButtonClick)
     val onBodyViewChangeUpdated by rememberUpdatedState(onBodyViewChange)
-    var isFlipping by remember { mutableStateOf(false) }
+    val onIsFlippingUpdated by rememberUpdatedState(onIsFlipping)
 
     LaunchedEffect(flipTrigger) {
-        isFlipping = true
 
         val startRotation = targetRotation
         val midRotation = startRotation + 90f
@@ -202,8 +202,8 @@ fun MuscleHeatmap(
 
         targetRotation = endRotation
 
-        delay(250)
-        isFlipping = false
+        delay(400)
+        onIsFlippingUpdated(false)
     }
 
     val density = LocalDensity.current
@@ -639,7 +639,8 @@ fun MuscleHeatmapPreview() {
                             muscleFatigues = currentMuscleList,
                             onFlipButtonClick = onFlipButtonClick,
                             onBodyViewChange = onBodyViewChange,
-                            flipTrigger = flipTrigger
+                            flipTrigger = flipTrigger,
+                            onIsFlipping =  {newValue -> isFlipping = newValue}
                         )
                         Row(
                             modifier = Modifier
@@ -663,7 +664,10 @@ fun MuscleHeatmapPreview() {
                             Row {
 
                                 Button(
-                                    onClick = onFlipButtonClick,
+                                    onClick = {
+                                        isFlipping = true
+                                        onFlipButtonClick()
+                                    },
                                     enabled = !isFlipping,
                                     colors = ButtonDefaults.buttonColors(
                                         containerColor = Color.Transparent,
