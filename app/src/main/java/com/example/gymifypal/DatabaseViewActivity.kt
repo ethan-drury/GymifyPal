@@ -249,13 +249,13 @@ fun DisplayExercises (
             modifier = modifier.padding(innerPadding),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Dropdown("Exercise: ", exercises.map { it.exerciseName }, selected, modifier = Modifier.padding(16.dp)) {
+            Dropdown("Muscle: ", exercises.map { it.muscle }, selected, modifier = Modifier.padding(16.dp)) {
                 selectedIndex = it
             }
             Row(modifier = Modifier.padding(start = 16.dp, end = 16.dp)) {
                 TitleText("Exercise")
 //                TitleText("Type")
-//                TitleText("Muscle")
+                TitleText("Muscle")
 //                TitleText("Difficulty")
                 TitleText("Week")
 //                TitleText("Sets")
@@ -355,6 +355,7 @@ fun ExerciseRow(exercise: Exercise, onClick: () -> Unit) {
             .padding(vertical = 8.dp)
     ) {
         Text(exercise.exerciseName, modifier = Modifier.weight(1f))
+        Text(exercise.muscle, modifier = Modifier.weight(1f))
         Text(exercise.week.toString(), modifier = Modifier.weight(1f))
     }
 }
