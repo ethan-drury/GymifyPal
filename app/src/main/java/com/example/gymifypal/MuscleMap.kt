@@ -375,7 +375,6 @@ fun MuscleHeatmapPreview() {
             drawableResId = R.drawable.chest,
             fatigueLevel = chestFatigue,
             onClick = showMuscleNameMessage
-
         ),
         MuscleFatigue(
             name = "Front Deltoids",

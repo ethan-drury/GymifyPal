@@ -215,7 +215,6 @@ fun AddExercise(
                         sets = setsInt,
                         reps = repsInt
                     )
-
                     navigateBack()
                 }
             ) { Text("Add Exercise") }
@@ -262,6 +261,8 @@ fun DisplayExercises(
                 TitleText("Exercise")
                 TitleText("Muscle")
                 TitleText("Week")
+                TitleText("Sets")
+                TitleText("Reps")
             }
 
             LazyColumn(modifier = Modifier.padding(start = 16.dp, end = 16.dp)) {
@@ -361,6 +362,8 @@ fun ExerciseRow(exercise: Exercise, onClick: () -> Unit) {
         Text(exercise.exerciseName, modifier = Modifier.weight(1f))
         Text(exercise.muscle, modifier = Modifier.weight(1f))
         Text(exercise.week.toString(), modifier = Modifier.weight(1f))
+        Text(exercise.sets.toString(), modifier = Modifier.weight(1f))
+        Text(exercise.reps.toString(), modifier = Modifier.weight(1f))
     }
 }
 

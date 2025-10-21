@@ -12,7 +12,7 @@ enum class MuscleGroup(val displayName: String) {
     Glutes("Glutes"),
     Hamstring("Hamstring"),
     RearDeltoid("Rear Deltoid"),
-    LateFatigue("Late Fatigue"),
+    Latissimus("Latissimus (Lats)"),
     RearTraps("Rear Traps"),
     Triceps("Triceps")
 }
