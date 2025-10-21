@@ -14,5 +14,8 @@ interface UniDao {
     fun allExercises(): Flow<List<Exercise>>
 
     @Query("DELETE FROM Exercise")
-    fun deleteExercise()
+    fun deleteAllExercise()
+
+    @Query("DELETE FROM Exercise WHERE id=:id")
+    fun deleteExercise(id: Long)
 }

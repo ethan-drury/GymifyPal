@@ -47,7 +47,7 @@ abstract class UniDatabase : RoomDatabase() {
 
                 CoroutineScope(Dispatchers.IO).launch {
                     val dao: UniDao = Instance!!.UniDao()
-                    dao.deleteExercise()
+                    dao.deleteAllExercise()
                     val test = dao.insert(
                         Exercise(
                             exerciseName = "Push-up",
