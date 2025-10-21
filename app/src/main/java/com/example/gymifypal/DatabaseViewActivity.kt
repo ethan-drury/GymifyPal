@@ -1,6 +1,5 @@
 package com.example.gymifypal
 
-import android.R.attr.onClick
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -13,7 +12,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -49,18 +47,24 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHost
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import androidx.navigation.toRoute
 import com.example.gymifypal.ui.theme.AppTypography
 import com.example.gymifypal.ui.theme.GymifyPalTheme
-import kotlinx.serialization.Serializable
 import kotlin.collections.emptyList
+import androidx.compose.runtime.rememberCoroutineScope
+import com.google.ai.client.generativeai.GenerativeModel
+import kotlinx.coroutines.launch
+import androidx.compose.material.icons.filled.Favorite
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.core.net.toUri
+
 
 class DatabaseViewActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -110,33 +114,109 @@ fun AddExercise(
     viewModel: ExerciseDatabaseViewModel= ExerciseDatabaseViewModel(LocalContext.current),
     navigateBack: () -> Unit={}
 ) {
+    var exerciseName by remember { mutableStateOf("") }
+    var type by remember { mutableStateOf("") }
+    var difficulty by remember { mutableStateOf("") }
+    var week by remember { mutableStateOf("1") }
+    var sets by remember { mutableStateOf("3") }
+    var reps by remember { mutableStateOf("10") }
+
+    val scope = rememberCoroutineScope()
+    var showAiSuggestion by remember { mutableStateOf(false) }
+    var aiResponse by remember { mutableStateOf("") }
+    var isLoadingAi by remember { mutableStateOf(false) }
+
+    val muscles = MuscleGroup.entries
+    var selectedMuscleIndex by remember { mutableIntStateOf(0) }
+    val selectedMuscle = muscles[selectedMuscleIndex]
+    val context = LocalContext.current
+
+
+    fun geminiSuggestion() {
+        scope.launch {
+            isLoadingAi = true
+            val model = GenerativeModel(
+                modelName = "gemini-2.5-flash-lite",
+                apiKey = BuildConfig.apiKey
+            )
+
+            val enteredSets = sets.ifBlank { "None entered Make up One" }
+            val enteredReps = reps.ifBlank { "None entered Make up One" }
+            val enteredType = type.ifBlank { "None entered Make up One" }
+            val enteredDiff = difficulty.ifBlank { "Beginner" }
+
+            val prompt =
+                "Suggest exactly ONE exercise for ${selectedMuscle.displayName}. Each time choose a random different one don't show unneeded information\n" +
+                        "If inputted do Prefer type: $enteredType, For difficulty (Beginner, Intermediate Or Advance) change the suggested weight or time or intensity. Entered difficulty: $enteredDiff.\n" +
+                        "If it makes sense, format a set scheme like: $enteredSets sets × $enteredReps reps \n otherwise display a more accurate rep range" +
+                        "Return a very short single paragraph answer: Exercise Name | Type | Difficulty | Reps. Suggest if applicable targeted max rep/time/intensity if applicable. Brief explanation on the muscles that this exercise targets."
+
+            val response = model.generateContent(prompt)
+            aiResponse = response.text ?: "No response"
+            isLoadingAi = false
+        }
+    }
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
                 title = { Text("Add Exercise") },
                 navigationIcon = {
                     IconButton(onClick = navigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 }
             )
         },
-    ) { innerPadding ->
+        floatingActionButton = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                // YouTube search for exercise Name fallback to Muscle i.e Abdominal
+                FloatingActionButton(
+                    onClick = {
+                        val baseExercise = exerciseName.ifBlank { "${selectedMuscle.displayName} exercises" }
+                        val query = "How to do $baseExercise"
+                        val url = "https://www.youtube.com/results?search_query=" + Uri.encode(query)
+
+                            context.startActivity(Intent(Intent.ACTION_VIEW, url.toUri()))
+                    }
+                ) {
+                Icon(Icons.Filled.PlayArrow, contentDescription = "YouTube search")
+                }
+                //Gemini Prompt
+                FloatingActionButton(
+                    onClick = {
+                        if (!showAiSuggestion) {
+                            showAiSuggestion = true
+                            if (!isLoadingAi) geminiSuggestion()
+                        } else if (!isLoadingAi) {
+                            geminiSuggestion()
+                        }
+                    }
+                ) {
+                    Icon(Icons.Filled.Favorite, contentDescription = "AI Suggestion")
+                }
+            }
+        }
+    )    { innerPadding ->
+
         Column(
             modifier = Modifier.padding(innerPadding),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            var exerciseName by remember { mutableStateOf("") }
-            var type by remember { mutableStateOf("") }
-            var difficulty by remember { mutableStateOf("") }
-            var week by remember { mutableStateOf("1") }
-            var sets by remember { mutableStateOf("3") }
-            var reps by remember { mutableStateOf("10") }
-
-            val muscles = MuscleGroup.entries
-            var selectedMuscleIndex by remember { mutableIntStateOf(0) }
-            val selectedMuscle = muscles[selectedMuscleIndex]
-
+            if (showAiSuggestion) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                ) {
+                    Text(text = if (isLoadingAi) "Loading AI suggestion..." else aiResponse)
+                }
+            }
             Dropdown(
                 label = "Muscle:",
                 muscles.map { it.displayName },
@@ -151,6 +231,7 @@ fun AddExercise(
                 label = { Text("Exercise Name") },
                 modifier = Modifier.fillMaxWidth()
             )
+
 
             OutlinedTextField(
                 value = type,
@@ -241,7 +322,6 @@ fun DisplayExercises(
         if (weekSortedAscending) filteredExercises.sortedBy { it.week }
         else filteredExercises.sortedByDescending { it.week }
     }
-
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
