@@ -222,17 +222,25 @@ fun AddExercise(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DisplayExercises(
     modifier: Modifier = Modifier,
     viewModel: ExerciseDatabaseViewModel = ExerciseDatabaseViewModel(LocalContext.current),
-    navController: NavHostController = NavHostController(LocalContext.current)
+    navController: NavHostController = NavHostController(LocalContext.current),
+    navigateBack: () -> Unit={}
 ) {
     var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
     val exercises = viewModel.getAllExercises().collectAsState(emptyList()).value
     val muscleList = listOf("All") + exercises.map { it.muscle }.distinct().sorted()
     val selected = muscleList.getOrNull(selectedIndex) ?: "All"
     val filteredExercises = if (selected == "All") exercises else exercises.filter { it.muscle == selected }
+    var weekSortedAscending by remember { mutableStateOf(true) }
+
+    val displayedExercises = remember(filteredExercises, weekSortedAscending) {
+        if (weekSortedAscending) filteredExercises.sortedBy { it.week }
+        else filteredExercises.sortedByDescending { it.week }
+    }
 
     Scaffold(
         floatingActionButton = {
@@ -242,7 +250,11 @@ fun DisplayExercises(
                 content = { Icon(Icons.Filled.Add, contentDescription = "Add") }
             )
         },
-        topBar = { /* Add later */ }
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text("Exercise List") },
+            )
+        },
     ) { innerPadding ->
         Column(
             modifier = modifier.padding(innerPadding),
@@ -260,13 +272,16 @@ fun DisplayExercises(
             Row(modifier = Modifier.padding(start = 16.dp, end = 16.dp)) {
                 TitleText("Exercise")
                 TitleText("Muscle")
-                TitleText("Week")
+                TitleText("Week") {
+                    weekSortedAscending = !weekSortedAscending
+                }
                 TitleText("Sets")
                 TitleText("Reps")
             }
 
+
             LazyColumn(modifier = Modifier.padding(start = 16.dp, end = 16.dp)) {
-                items(filteredExercises) { exercise ->
+                items(displayedExercises) { exercise ->
                     ExerciseRow(exercise) {
                         navController.navigate("exercise/${exercise.id}")
                     }
@@ -275,7 +290,6 @@ fun DisplayExercises(
         }
     }
 }
-
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -368,9 +382,21 @@ fun ExerciseRow(exercise: Exercise, onClick: () -> Unit) {
 }
 
 @Composable
-fun RowScope.TitleText(t:String) {
-    Text(t, style = AppTypography.titleMedium, modifier = Modifier.weight(1f))
+fun RowScope.TitleText(
+    t: String,
+    onClick: (() -> Unit)? = null
+) {
+    Text(
+        text = t,
+        style = AppTypography.titleMedium,
+        modifier = Modifier
+            .weight(1f)
+            .then(
+                if (onClick != null) Modifier.clickable { onClick() } else Modifier
+            )
+    )
 }
+
 
 @Composable
 fun Dropdown(label:String, names: List<String>, selected: String, modifier: Modifier=Modifier, onSelected: (Int) -> Unit) {
