@@ -224,15 +224,16 @@ fun AddExercise(
 }
 
 @Composable
-fun DisplayExercises (
-    modifier: Modifier=Modifier,
-    viewModel: ExerciseDatabaseViewModel= ExerciseDatabaseViewModel(LocalContext.current),
-    navController: NavHostController=NavHostController(LocalContext.current)
+fun DisplayExercises(
+    modifier: Modifier = Modifier,
+    viewModel: ExerciseDatabaseViewModel = ExerciseDatabaseViewModel(LocalContext.current),
+    navController: NavHostController = NavHostController(LocalContext.current)
 ) {
     var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
     val exercises = viewModel.getAllExercises().collectAsState(emptyList()).value
-    val selected =
-        if (selectedIndex < exercises.size) exercises[selectedIndex].muscle else "Select Muscle"
+    val muscleList = listOf("All") + exercises.map { it.muscle }.distinct().sorted()
+    val selected = muscleList.getOrNull(selectedIndex) ?: "All"
+    val filteredExercises = if (selected == "All") exercises else exercises.filter { it.muscle == selected }
 
     Scaffold(
         floatingActionButton = {
@@ -242,27 +243,29 @@ fun DisplayExercises (
                 content = { Icon(Icons.Filled.Add, contentDescription = "Add") }
             )
         },
-
         topBar = { /* Add later */ }
     ) { innerPadding ->
         Column(
             modifier = modifier.padding(innerPadding),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Dropdown("Muscle: ", exercises.map { it.muscle }, selected, modifier = Modifier.padding(16.dp)) {
+            Dropdown(
+                label = "Muscle: ",
+                muscleList,
+                selected = selected,
+                modifier = Modifier.padding(16.dp)
+            ) {
                 selectedIndex = it
             }
+
             Row(modifier = Modifier.padding(start = 16.dp, end = 16.dp)) {
                 TitleText("Exercise")
-//                TitleText("Type")
                 TitleText("Muscle")
-//                TitleText("Difficulty")
                 TitleText("Week")
-//                TitleText("Sets")
-//                TitleText("Reps")
             }
+
             LazyColumn(modifier = Modifier.padding(start = 16.dp, end = 16.dp)) {
-                items(exercises) { exercise ->
+                items(filteredExercises) { exercise ->
                     ExerciseRow(exercise) {
                         navController.navigate("exercise/${exercise.id}")
                     }
@@ -271,6 +274,7 @@ fun DisplayExercises (
         }
     }
 }
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)
