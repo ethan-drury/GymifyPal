@@ -232,7 +232,7 @@ fun DisplayExercises (
     var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
     val exercises = viewModel.getAllExercises().collectAsState(emptyList()).value
     val selected =
-        if (selectedIndex < exercises.size) exercises[selectedIndex].exerciseName else "Select Exercise"
+        if (selectedIndex < exercises.size) exercises[selectedIndex].muscle else "Select Muscle"
 
     Scaffold(
         floatingActionButton = {
