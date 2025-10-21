@@ -146,9 +146,11 @@ fun AddExercise(
             val enteredDiff = difficulty.ifBlank { "Beginner" }
 
             val prompt =
-                "Suggest exactly ONE exercise for ${selectedMuscle.displayName}. Each time choose a random different one don't show unneeded information\n" +
-                        "If inputted do Prefer type: $enteredType, For difficulty (Beginner, Intermediate Or Advance) change the suggested weight or time or intensity. Entered difficulty: $enteredDiff.\n" +
-                        "If it makes sense, format a set scheme like: $enteredSets sets × $enteredReps reps \n otherwise display a more accurate rep range" +
+                "Suggest exactly ONE exercise for ${selectedMuscle.displayName}. Each time choose a random different one don't show unneeded information\n " +
+                        "don't add weird Spacing, **, Quotes, :, ; e.c.t\n"+
+                        "If entered do Type: $enteredType, For difficulty (Beginner, Intermediate Or Advance) change the suggested weight or time or intensity. Entered difficulty: $enteredDiff.\n" +
+                        "If it makes sense, format like: $enteredSets sets × $enteredReps reps\n" +
+                        "For the suggested Exercise, base it of the Difficulty entered. If its to hard don't display for beginners and if its to easy don't display for advanced.\n" +
                         "Return a very short single paragraph answer: Exercise Name | Type | Difficulty | Reps. Suggest if applicable targeted max rep/time/intensity if applicable. Brief explanation on the muscles that this exercise targets."
 
             val response = model.generateContent(prompt)
