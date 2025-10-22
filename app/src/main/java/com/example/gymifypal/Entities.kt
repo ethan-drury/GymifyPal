@@ -8,7 +8,6 @@ import kotlinx.serialization.Serializable
 import java.sql.Timestamp
 import java.util.concurrent.TimeUnit
 
-/*
 @Entity(tableName = "muscle_fatigue")
 @Serializable
 data class MuscleFatigue(
@@ -28,7 +27,6 @@ val MuscleFatigue.currentFatigueLevel: Float
 
         return (savedFatigueLevel - decrement).coerceIn(0.0f,1.0f)
     }
-*/
 @Entity
 @Serializable
 data class Exercise(@PrimaryKey(autoGenerate = true) val id: Long=0,

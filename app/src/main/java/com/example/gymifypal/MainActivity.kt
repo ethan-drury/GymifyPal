@@ -30,9 +30,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            GymifyPalTheme {
-                MainButtons()
-            }
             MuscleHeatmapPreview()
         }
     }
@@ -44,6 +41,7 @@ fun MainButtons() {
     var aiResponse by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
 
+    /*
     Column(
     ) {
         Button(onClick = {
@@ -83,4 +81,5 @@ fun MainButtons() {
             }
         }
     }
+    */
 }

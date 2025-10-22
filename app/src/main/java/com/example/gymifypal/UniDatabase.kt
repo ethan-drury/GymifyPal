@@ -12,7 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
-@Database(entities = [Exercise::class], version = 1)
+@Database(entities = [Exercise::class, MuscleFatigue::class], version = 2)
 abstract class UniDatabase : RoomDatabase() {
     abstract fun UniDao(): UniDao
     companion object {
@@ -73,6 +73,17 @@ abstract class UniDatabase : RoomDatabase() {
                             reps = 8
                         )
                     )
+
+                    MuscleGroup.entries.forEach { muscle ->
+                        dao.insertFatigue(
+                            MuscleFatigue(
+                                muscleName = muscle.displayName,
+                                savedFatigueLevel = 0.0f,
+                                lastUpdatedTimestamp = System.currentTimeMillis()
+                            )
+                        )
+                    }
+
                     Log.i("db", "Database and Fatigue Populated")
                 }
             }
