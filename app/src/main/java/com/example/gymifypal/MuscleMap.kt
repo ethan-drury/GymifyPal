@@ -365,8 +365,27 @@ fun MuscleHeatmapPreview() {
                 modelName = "gemini-2.5-flash-lite",
                 apiKey = BuildConfig.apiKey
             )
-            val response = model.generateContent("What area of my body should I work out today only give me one response and " +
-                    "tell me the muscle area and nothing else randomize it every time")
+            val response = model.generateContent("""
+                Note: these are the muscle areas
+                Biceps
+                Chest 
+                FrontDeltoid
+                SideDeltoid
+                FrontForearm
+                Quads
+                Calves
+                Glutes
+                Hamstring
+                Rear Deltoid
+                Latissimus (Lats)
+                Rear Traps
+                Triceps
+                
+                Say this what area of my body should Only display one. Randomize it every time
+                At the end say how many times in a week should you train this muscle 
+                So say :Muscle, You should Train this <your value> times a week <Base it of active gym goers>
+                No Unneeded comments or anything go straight to the point
+                """)
             aiResponse = response.text ?: "No response"
             isLoadingAi = false
         }
@@ -635,22 +654,6 @@ fun MuscleHeatmapPreview() {
                         }
                     )
                 },
-                floatingActionButton = {
-                    FloatingActionButton(
-                        onClick = {
-                                if (!showAiSuggestion) {
-                                    showAiSuggestion = true
-                                    if (!isLoadingAi && aiResponse.isEmpty()) geminiQuery()
-                                } else {
-                                    showAiSuggestion = false
-                                    aiResponse = ""
-                                }
-                            },
-                        shape = CircleShape
-                    ){
-                        Icon(Icons.Filled.Favorite, contentDescription = "AI")
-                    }
-                },
             ) { paddingValues ->
                 Column(
                     modifier = Modifier
@@ -664,7 +667,7 @@ fun MuscleHeatmapPreview() {
                                 .padding(horizontal = 16.dp, vertical = 8.dp)
                         ) {
                             Column(Modifier.padding(12.dp)) {
-                                Text(text = if (isLoadingAi) "Is Loading..." else aiResponse)
+                                Text(text = if (isLoadingAi) "Is Loading AI..." else aiResponse)
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween
@@ -708,36 +711,11 @@ fun MuscleHeatmapPreview() {
                                 }) {
                                     Text("Click me!!!")
                                 }
-                                Button(onClick = {
-                                    scope.launch {
-                                        isLoading = true
-                                        val model = GenerativeModel(
-                                            modelName = "gemini-2.5-flash-lite",
-                                            apiKey = BuildConfig.apiKey
-                                        )
-                                        val response = model.generateContent("What area of my body should I work out today only give me one response and " +
-                                                "tell me the muscle area and nothing else randomize it every time")
-                                        aiResponse = response.text ?: "No response"
-                                        isLoading = false
-                                    }
-                                }
-                                ) {
-                                    Text("AI")
-                                }
-                                if (aiResponse.isNotEmpty()) {
-                                    Card(modifier = Modifier.fillMaxWidth()) {
-                                        Text(
-                                            text = aiResponse,
-                                            modifier = Modifier.padding(20.dp)
-                                        )
-                                    }
-                                }
                             }
                         }
                     }
 
                     Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
-
 
                         MuscleHeatmap(
                             muscleFatigues = currentMuscleList,
@@ -834,7 +812,4 @@ fun MuscleHeatmapPreview() {
             }
         }
     )
-
-
-
 }
