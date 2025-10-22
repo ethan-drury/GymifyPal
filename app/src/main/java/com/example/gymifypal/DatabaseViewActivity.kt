@@ -182,6 +182,7 @@ fun AddExercise(
                     }
                 }
             )
+
         },
         floatingActionButton = {
             Row(
@@ -214,6 +215,9 @@ fun AddExercise(
                     }
                 ) {
                     Text(text = "AI")
+                }
+                FloatingActionButton(onClick = { showAiSuggestion = false;}) {
+                    Text("Hide AI")
                 }
             }
         }
