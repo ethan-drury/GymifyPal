@@ -74,9 +74,11 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Card
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Slider
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
@@ -159,7 +161,7 @@ data class MuscleFatigueMap(
     val name: String,
     @DrawableRes val drawableResId: Int,
     val fatigueLevel: Float = 0f,
-    val onClick: (message: String) -> Unit = {}
+    val onClick: (muscleName: String) -> Unit = {}
 )
 
 @Composable
@@ -303,13 +305,51 @@ fun MuscleHeatmapPreview() {
     val uniDao = remember { UniDatabase.getDatabase(context).UniDao() }
     val fatiguedb = remember { FatigueDatabaseViewModel(context) }
 */
+    var isMuscleEditMode by remember { mutableStateOf(false) }
+    var selectedMuscleName by remember { mutableStateOf<String?>(null) }
+    val sheetStateFatigue = rememberModalBottomSheetState()
+    var showFatigueSlider by remember { mutableStateOf(false) }
+
+    val muscleFatigueStates = remember {
+        mutableStateMapOf(
+            "Abdominals" to mutableStateOf(0.0f),
+            "Biceps" to mutableStateOf(0.0f),
+            "Chest" to mutableStateOf(0.0f),
+            "Front Deltoids" to mutableStateOf(0.0f),
+            "Side Deltoids" to mutableStateOf(0.0f),
+            "Front Forearms" to mutableStateOf(0.0f),
+            "quads" to mutableStateOf(0.0f),
+            "Calves" to mutableStateOf(0.0f),
+            "Glutes" to mutableStateOf(0.0f),
+            "Hamstrings" to mutableStateOf(0.0f),
+            "Rear Deltoids" to mutableStateOf(0.0f),
+            "Lats" to mutableStateOf(0.0f),
+            "Rear Traps" to mutableStateOf(0.0f),
+            "Triceps" to mutableStateOf(0.0f)
+        )
+    }
+
+    val selectedMuscleFatigue: Float = selectedMuscleName?.let { muscleName ->
+        muscleFatigueStates[muscleName]?.value
+    } ?: 0f
+
     val onEditButtonClick: () -> Unit = {
+        isMuscleEditMode = !isMuscleEditMode
         scope.launch {
-            snackbarHostState.showSnackbar(
-                message = "Choose a Muscle to change its fatigue level"
-            )
+            if (isMuscleEditMode) {
+                snackbarHostState.showSnackbar(
+                    message = "Edit Mode: Choose a muscle to set its fatigue level."
+                )
+            } else {
+                showFatigueSlider = false
+                selectedMuscleName = null
+                snackbarHostState.showSnackbar(
+                    message = "Edit Mode Disabled."
+                )
+            }
         }
     }
+
 
     val onFlipButtonClick = { flipTrigger = !flipTrigger }
 
@@ -331,17 +371,44 @@ fun MuscleHeatmapPreview() {
         }
     }
 
-    var isMuscleEditMode = false
-
-    val showMuscleNameMessage: (String) -> Unit = { muscleName ->
-        scope.launch{
-            snackbarHostState.showSnackbar(
-                message = "Clicked: $muscleName",
-                actionLabel = "Aight"
-            )
+    val onMuscleClick: (String) -> Unit = { muscleName ->
+        if (isMuscleEditMode) {
+            selectedMuscleName = muscleName
+            showFatigueSlider = true
+        } else {
+            scope.launch{
+                snackbarHostState.showSnackbar(
+                    message = "Clicked: $muscleName",
+                    actionLabel = "Aight"
+                )
+            }
         }
     }
+    val frontMuscleList = listOf(
+        MuscleFatigueMap(name = "Abdominals", drawableResId = R.drawable.abs, fatigueLevel = muscleFatigueStates["Abdominals"]?.value ?: 0f, onClick = onMuscleClick),
+        MuscleFatigueMap(name = "Biceps", drawableResId = R.drawable.biceps, fatigueLevel = muscleFatigueStates["Biceps"]?.value ?: 0f, onClick = onMuscleClick),
+        MuscleFatigueMap(name = "Chest", drawableResId = R.drawable.chest, fatigueLevel = muscleFatigueStates["Chest"]?.value ?: 0f, onClick = onMuscleClick),
+        MuscleFatigueMap(name = "Front Deltoids", drawableResId = R.drawable.front_deltoids, fatigueLevel = muscleFatigueStates["Front Deltoids"]?.value ?: 0f, onClick = onMuscleClick),
+        MuscleFatigueMap(name = "Side Deltoids", drawableResId = R.drawable.side_deltoids, fatigueLevel = muscleFatigueStates["Side Deltoids"]?.value ?: 0f, onClick = onMuscleClick),
+        MuscleFatigueMap(name = "Front Forearms", drawableResId = R.drawable.front_forearms, fatigueLevel = muscleFatigueStates["Front Forearms"]?.value ?: 0f, onClick = onMuscleClick),
+        MuscleFatigueMap(name = "quads", drawableResId = R.drawable.quads, fatigueLevel = muscleFatigueStates["quads"]?.value ?: 0f, onClick = onMuscleClick)
+    )
 
+    val backMuscleList = listOf(
+        MuscleFatigueMap(name = "Calves", drawableResId = R.drawable.calves, fatigueLevel = muscleFatigueStates["Calves"]?.value ?: 0f, onClick = onMuscleClick),
+        MuscleFatigueMap(name = "Glutes", drawableResId = R.drawable.glutes, fatigueLevel = muscleFatigueStates["Glutes"]?.value ?: 0f, onClick = onMuscleClick),
+        MuscleFatigueMap(name = "Hamstrings", drawableResId = R.drawable.hamstrings, fatigueLevel = muscleFatigueStates["Hamstrings"]?.value ?: 0f, onClick = onMuscleClick),
+        MuscleFatigueMap(name = "Rear Deltoids", drawableResId = R.drawable.rear_deltoids, fatigueLevel = muscleFatigueStates["Rear Deltoids"]?.value ?: 0f, onClick = onMuscleClick),
+        MuscleFatigueMap(name = "Lats", drawableResId = R.drawable.lats, fatigueLevel = muscleFatigueStates["Lats"]?.value ?: 0f, onClick = onMuscleClick),
+        MuscleFatigueMap(name = "Rear Traps", drawableResId = R.drawable.rear_traps, fatigueLevel = muscleFatigueStates["Rear Traps"]?.value ?: 0f, onClick = onMuscleClick),
+        MuscleFatigueMap(name = "Triceps", drawableResId = R.drawable.triceps, fatigueLevel = muscleFatigueStates["Triceps"]?.value ?: 0f, onClick = onMuscleClick)
+    )
+
+    val currentMuscleList = if (isFrontView) frontMuscleList else backMuscleList
+
+
+
+    /*
     // SHOULD ALL BE (0.0f)...
     // Changed for testing
     // Front
@@ -455,6 +522,7 @@ fun MuscleHeatmapPreview() {
             onClick = showMuscleNameMessage
         )
     )
+    */
 /*
     val allFatigueMaps by fatiguedb
         .getAllMuscleFatigueMaps(showMuscleNameMessage)
@@ -468,7 +536,6 @@ fun MuscleHeatmapPreview() {
         it.name in listOf("Calves", "Glutes", "Hamstrings", "Rear Deltoids", "Lats", "Rear Traps", "Triceps")
     }
 */
-    val currentMuscleList = if (isFrontView) frontMuscleList else backMuscleList
 
     /*
     ModalNavigationDrawer code adapted from official docs:
@@ -715,7 +782,48 @@ fun MuscleHeatmapPreview() {
 
                         val baseBodyResId =
                             if (isFrontView) R.drawable.muscle_map_front else R.drawable.muscle_map_back
+                        if (showFatigueSlider && selectedMuscleName != null) {
+                            ModalBottomSheet(
+                                onDismissRequest = {
+                                    showFatigueSlider = false
+                                },
+                                sheetState = sheetStateFatigue
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(24.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text(
+                                        "Set Fatigue for ${selectedMuscleName}",
+                                        modifier = Modifier.padding(bottom = 16.dp)
+                                    )
 
+                                    Text("Fatigue Level: ${(selectedMuscleFatigue * 100).toInt()}%")
+
+                                    Slider(
+                                        value = selectedMuscleFatigue,
+                                        onValueChange = { newValue ->
+                                            selectedMuscleName?.let { name ->
+                                                muscleFatigueStates[name]?.value = newValue
+                                            }
+                                        },
+                                        steps = 9,
+                                        valueRange = 0f..1f,
+                                        modifier = Modifier.padding(vertical = 16.dp)
+                                    )
+
+                                    Button(
+                                        onClick = {
+                                            showFatigueSlider = false
+                                        }
+                                    ) {
+                                        Text("Done")
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
