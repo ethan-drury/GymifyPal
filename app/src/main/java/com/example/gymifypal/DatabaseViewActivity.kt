@@ -1,5 +1,6 @@
 package com.example.gymifypal
 
+import android.app.Activity
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -333,8 +334,17 @@ fun DisplayExercises(
             )
         },
         topBar = {
+            val context = LocalContext.current
             CenterAlignedTopAppBar(
                 title = { Text("Exercise List") },
+                navigationIcon = {
+                    IconButton(onClick = {
+                        val intent = Intent(context, MuscleMapActivity::class.java)
+                        context.startActivity(intent)
+                    }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                }
             )
         },
     ) { innerPadding ->

@@ -68,6 +68,7 @@ import androidx.compose.ui.unit.IntSize
 import android.graphics.BitmapFactory
 import android.util.Log
 import android.widget.Button
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
@@ -698,18 +699,23 @@ fun MuscleHeatmapPreview() {
                             // Sheet content
 
                             Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                Button(onClick = {
-                                    val intent = Intent(context, MuscleMapActivity::class.java)
-                                    context.startActivity(intent)
-                                }) {
-                                    Text("Click me")
-                                }
-                                Button(onClick = {
-                                    val intent = Intent(context, DatabaseViewActivity::class.java)
-                                    context.startActivity(intent)
-                                }) {
-                                    Text("Click me!!!")
+                                Button(
+                                    onClick = {
+                                        // Open database screen
+                                        val intent = Intent(context, DatabaseViewActivity::class.java)
+                                        context.startActivity(intent)
+                                        showBottomSheet = false
+                                    },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(70.dp)
+                                ) {
+                                    Text("Database")
                                 }
                             }
                         }
