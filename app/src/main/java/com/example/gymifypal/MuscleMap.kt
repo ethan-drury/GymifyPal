@@ -72,6 +72,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Card
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.ModalBottomSheet
@@ -485,7 +486,7 @@ fun MuscleHeatmapPreview() {
                                     aiResponse = ""
                                 }
                             }) {
-                                Icon(Icons.Filled.Search, contentDescription = "AI Suggestion")
+                                Icon(Icons.Filled.Info, contentDescription = "AI Suggestion")
                             }
                         }
                     )
