@@ -569,15 +569,6 @@ fun MuscleHeatmapPreview() {
             ModalDrawerSheet {
                 Text("Activity list", modifier = Modifier.padding(16.dp))
                 NavigationDrawerItem(
-                    label = { Text("Drawer Item") },
-                    selected = false,
-                    onClick = {
-                        scope.launch { drawerState.close() }
-                    },
-                    icon = { Icon(Icons.Filled.ThumbUp, contentDescription = null)},
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
-                )
-                NavigationDrawerItem(
                     label = { Text("Age Comparisons") },
                     selected = false,
                     onClick = {
