@@ -17,6 +17,10 @@
             android:label="@string/title_activity_database_view"
             android:theme="@style/Theme.GymifyPal" />
         <activity
+            android:name=".AgeComparisonActivity"
+            android:exported="false"
+            android:theme="@style/Theme.GymifyPal" />
+        <activity
             android:name=".MuscleMapActivity"
             android:exported="false"
             android:label="@string/title_activity_muscle_map"

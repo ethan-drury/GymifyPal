@@ -289,7 +289,6 @@ fun MuscleHeatmapPreview() {
     var aiResponse by remember { mutableStateOf("") }
     var isLoadingAi by remember { mutableStateOf(false) }
 
-
     val context = LocalContext.current
     var isLoading by remember { mutableStateOf(false) }
     /*
@@ -488,6 +487,18 @@ fun MuscleHeatmapPreview() {
                         scope.launch { drawerState.close() }
                     },
                     icon = { Icon(Icons.Filled.ThumbUp, contentDescription = null)},
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+                )
+                NavigationDrawerItem(
+                    label = { Text("Age Comparisons") },
+                    selected = false,
+                    onClick = {
+                        scope.launch { drawerState.close() }
+                        context.startActivity(
+                            Intent(context, AgeComparisonActivity::class.java)
+                        )
+                    },
+                    icon = { Icon(Icons.Filled.ThumbUp, contentDescription = null) },
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
                 )
                 // ...other drawer items

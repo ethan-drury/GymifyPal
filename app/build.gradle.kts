@@ -68,8 +68,9 @@ dependencies {
     ksp(libs.androidx.room.compiler)
     implementation(libs.generativeai)
 }
+/* Loads Key from local.properties as our team used github, we needed a way to avoid having the Gemini api key in our code */
 fun getApiKey(property: String): String {
     val properties = Properties()
     properties.load(FileInputStream(File(rootProject.rootDir, "local.properties")))
     return properties.getProperty(property) ?: ""
-}/*https://stackoverflow.com/questions/35722904/saving-the-api-key-in-gradle-properties*/
+}
