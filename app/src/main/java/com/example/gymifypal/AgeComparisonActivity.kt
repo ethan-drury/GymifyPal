@@ -200,7 +200,6 @@ fun AgeComparisonScreen(onBack: () -> Unit = {}) {
                 onValueChange = { sex = it },
                 label = { Text("Sex : M or F") },
                 singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth()
             )
 
