@@ -37,9 +37,6 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainButtons() {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-    var aiResponse by remember { mutableStateOf("") }
-    var isLoading by remember { mutableStateOf(false) }
 
     /*
     Column(
@@ -55,30 +52,6 @@ fun MainButtons() {
             context.startActivity(intent)
         }) {
             Text("Click me!!!")
-        }
-        Button(onClick = {
-            scope.launch {
-                isLoading = true
-                val model = GenerativeModel(
-                    modelName = "gemini-2.5-flash-lite",
-                    apiKey = BuildConfig.apiKey
-                )
-                val response = model.generateContent("What area of my body should I work out today only give me one response and " +
-                        "tell me the muscle area and nothing else randomize it every time")
-                aiResponse = response.text ?: "No response"
-                isLoading = false
-            }
-        }
-        ) {
-            Text("AI")
-        }
-        if (aiResponse.isNotEmpty()) {
-            Card(modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    text = aiResponse,
-                    modifier = Modifier.padding(20.dp)
-                )
-            }
         }
     }
     */

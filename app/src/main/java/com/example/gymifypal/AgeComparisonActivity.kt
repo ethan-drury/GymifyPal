@@ -135,10 +135,14 @@ fun AgeComparisonScreen(onBack: () -> Unit = {}) {
 
     Scaffold(
         topBar = {
+            val context = LocalContext.current
             CenterAlignedTopAppBar(
                 title = { Text("Age Comparisons") },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
+                    IconButton(onClick = {
+                        val intent = Intent(context, MuscleMapActivity::class.java)
+                        context.startActivity(intent)
+                    }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 }
