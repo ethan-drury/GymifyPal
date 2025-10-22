@@ -76,6 +76,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateMapOf
@@ -546,7 +547,7 @@ fun MuscleHeatmapPreview() {
         gesturesEnabled = drawerState.isOpen,
         drawerContent = {
             ModalDrawerSheet {
-                Text("Drawer title", modifier = Modifier.padding(16.dp))
+                Text("Activity list", modifier = Modifier.padding(16.dp))
                 NavigationDrawerItem(
                     label = { Text("Drawer Item") },
                     selected = false,
@@ -657,26 +658,30 @@ fun MuscleHeatmapPreview() {
                         .padding(paddingValues)
                 ) {
                     if (showAiSuggestion) {
-                        Column(
+                        Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = 10.dp, vertical = 8.dp)
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
                         ) {
-                            Text(text = (aiResponse))
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(top = 8.dp)
-                            ) {
-                                Button(
+                            Column(Modifier.padding(12.dp)) {
+                                Text(text = if (isLoadingAi) "Is Loading..." else aiResponse)
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    IconButton(
+                                        onClick = { if (!isLoadingAi) geminiQuery() },
+                                    ) {
+                                        Icon(Icons.Filled.Refresh, contentDescription = "Refresh AI")
 
-                                    onClick = { if (!isLoadingAi) geminiQuery() },
-                                    enabled = !isLoadingAi
-                                ) { Text("Refresh") }
+                                    }
+                                    TextButton(onClick = { showAiSuggestion = false;}) {
+                                        Text("Hide AI Idea")
+                                    }
+                                }
                             }
                         }
                     }
-
                     /*
                     Adapted from official docs
                      */
