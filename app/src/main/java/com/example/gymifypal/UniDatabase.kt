@@ -12,7 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
-@Database(entities = [Exercise::class], version = 1)
+@Database(entities = [Exercise::class, MuscleFatigue::class], version = 1)
 abstract class UniDatabase : RoomDatabase() {
     abstract fun UniDao(): UniDao
     companion object {
@@ -48,6 +48,19 @@ abstract class UniDatabase : RoomDatabase() {
                 CoroutineScope(Dispatchers.IO).launch {
                     val dao: UniDao = Instance!!.UniDao()
                     dao.deleteAllExercise()
+
+                    //fatigue init
+                    MuscleGroup.entries.forEach { muscleGroup ->
+                        dao.replaceFatigue(
+                            MuscleFatigue(
+                                muscleName = muscleGroup.name,
+                                savedFatigueLevel = 0.0f,
+                                lastUpdatedTimestamp = System.currentTimeMillis()
+                            )
+                        )
+                    }
+
+                    //exercise init
                     val test = dao.insert(
                         Exercise(
                             exerciseName = "Push-up",
@@ -71,7 +84,7 @@ abstract class UniDatabase : RoomDatabase() {
                             reps = 8
                         )
                     )
-                    Log.i("db", "Database Populated")
+                    Log.i("db", "Database and Fatigue Populated")
                 }
             }
         }
