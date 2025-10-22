@@ -312,6 +312,7 @@ fun MuscleHeatmapPreview() {
     val sheetStateFatigue = rememberModalBottomSheetState()
     var showFatigueSlider by remember { mutableStateOf(false) }
 
+    //Initiate Fatigue levels
     val muscleFatigueStates = remember {
         mutableStateMapOf(
             "Abdominals" to mutableStateOf(0.0f),
@@ -405,6 +406,8 @@ fun MuscleHeatmapPreview() {
             }
         }
     }
+
+    //Ties drawables to names
     val frontMuscleList = listOf(
         MuscleFatigueMap(name = "Abdominals", drawableResId = R.drawable.abs, fatigueLevel = muscleFatigueStates["Abdominals"]?.value ?: 0f, onClick = onMuscleClick),
         MuscleFatigueMap(name = "Biceps", drawableResId = R.drawable.biceps, fatigueLevel = muscleFatigueStates["Biceps"]?.value ?: 0f, onClick = onMuscleClick),
@@ -426,137 +429,6 @@ fun MuscleHeatmapPreview() {
     )
 
     val currentMuscleList = if (isFrontView) frontMuscleList else backMuscleList
-
-
-
-    /*
-    // SHOULD ALL BE (0.0f)...
-    // Changed for testing
-    // Front
-    val abdominalFatigue by remember { mutableFloatStateOf(0.5f) }
-    val bicepsFatigue by remember { mutableFloatStateOf(0.3f) }
-    val chestFatigue by remember { mutableFloatStateOf(1.0f) }
-    val frontDeltoidFatigue by remember { mutableFloatStateOf(0.0f) }
-    val sideDeltoidFatigue by remember { mutableFloatStateOf(0.0f) }
-    val frontForearmFatigue by remember { mutableFloatStateOf(0.0f) }
-    val quadsFatigue by remember { mutableFloatStateOf(0.0f) }
-
-    // Back
-    val calvesFatigue by remember { mutableFloatStateOf(0.5f) }
-    val glutesFatigue by remember { mutableFloatStateOf(0.3f) }
-    val hamstringsFatigue by remember { mutableFloatStateOf(1.0f) }
-    val rearDeltoidFatigue by remember { mutableFloatStateOf(0.0f) }
-    val latsFatigue by remember { mutableFloatStateOf(0.0f) }
-    val rearTrapsFatigue by remember { mutableFloatStateOf(0.0f) }
-    val tricepsFatigue by remember { mutableFloatStateOf(0.0f) }
-
-
-
-    val frontMuscleList = listOf(
-
-        MuscleFatigueMap(
-            name = "Abdominals",
-            drawableResId = R.drawable.abs,
-            fatigueLevel = abdominalFatigue,
-            onClick = showMuscleNameMessage
-        ),
-        MuscleFatigueMap(
-            name = "Biceps",
-            drawableResId = R.drawable.biceps,
-            fatigueLevel = bicepsFatigue,
-            onClick = showMuscleNameMessage
-        ),
-        MuscleFatigueMap(
-            name = "Chest",
-            drawableResId = R.drawable.chest,
-            fatigueLevel = chestFatigue,
-            onClick = showMuscleNameMessage
-        ),
-        MuscleFatigueMap(
-            name = "Front Deltoids",
-            drawableResId = R.drawable.front_deltoids,
-            fatigueLevel = frontDeltoidFatigue,
-            onClick = showMuscleNameMessage
-
-        ),
-        MuscleFatigueMap(
-            name = "Side Deltoids",
-            drawableResId = R.drawable.side_deltoids,
-            fatigueLevel = sideDeltoidFatigue,
-            onClick = showMuscleNameMessage
-        ),
-        MuscleFatigueMap(
-            name = "Front Forearms",
-            drawableResId = R.drawable.front_forearms,
-            fatigueLevel = frontForearmFatigue,
-            onClick = showMuscleNameMessage
-        ),
-        MuscleFatigueMap(
-            name = "quads",
-            drawableResId = R.drawable.quads,
-            fatigueLevel = quadsFatigue,
-            onClick = showMuscleNameMessage
-        )
-    )
-
-    val backMuscleList = listOf(
-        MuscleFatigueMap(
-            name = "Calves",
-            drawableResId = R.drawable.calves,
-            fatigueLevel = calvesFatigue,
-            onClick = showMuscleNameMessage
-        ),
-        MuscleFatigueMap(
-            name = "Glutes",
-            drawableResId = R.drawable.glutes,
-            fatigueLevel = glutesFatigue,
-            onClick = showMuscleNameMessage
-        ),
-        MuscleFatigueMap(
-            name = "Hamstrings",
-            drawableResId = R.drawable.hamstrings,
-            fatigueLevel = hamstringsFatigue,
-            onClick = showMuscleNameMessage
-        ),
-        MuscleFatigueMap(
-            name = "Rear Deltoids",
-            drawableResId = R.drawable.rear_deltoids,
-            fatigueLevel = rearDeltoidFatigue,
-            onClick = showMuscleNameMessage
-        ),
-        MuscleFatigueMap(
-            name = "Lats",
-            drawableResId = R.drawable.lats,
-            fatigueLevel = latsFatigue,
-            onClick = showMuscleNameMessage
-        ),
-        MuscleFatigueMap(
-            name = "Rear Traps",
-            drawableResId = R.drawable.rear_traps,
-            fatigueLevel = rearTrapsFatigue,
-            onClick = showMuscleNameMessage
-        ),
-        MuscleFatigueMap(
-            name = "Triceps",
-            drawableResId = R.drawable.triceps,
-            fatigueLevel = tricepsFatigue,
-            onClick = showMuscleNameMessage
-        )
-    )
-    */
-/*
-    val allFatigueMaps by fatiguedb
-        .getAllMuscleFatigueMaps(showMuscleNameMessage)
-        .collectAsState(initial = emptyList())
-
-    val frontMuscleList = allFatigueMaps.filter {
-        it.name in listOf("Abdominals", "Biceps", "Chest", "Front Deltoids", "Side Deltoids", "Front Forearms", "quads")
-    }
-
-    val backMuscleList = allFatigueMaps.filter {
-        it.name in listOf("Calves", "Glutes", "Hamstrings", "Rear Deltoids", "Lats", "Rear Traps", "Triceps")
-    }
-*/
 
     /*
     ModalNavigationDrawer code adapted from official docs:
