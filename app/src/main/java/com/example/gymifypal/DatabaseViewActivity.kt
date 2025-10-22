@@ -63,7 +63,19 @@ import kotlinx.coroutines.launch
 import androidx.compose.material.icons.filled.Favorite
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.font.FontWeight
 import androidx.core.net.toUri
 
 
@@ -308,11 +320,11 @@ fun AddExercise(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DisplayExercises(
+fun DisplayExercises (
     modifier: Modifier = Modifier,
     viewModel: ExerciseDatabaseViewModel = ExerciseDatabaseViewModel(LocalContext.current),
     navController: NavHostController = NavHostController(LocalContext.current),
-    navigateBack: () -> Unit={}
+    navigateBack: () -> Unit = {}
 ) {
     var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
     val exercises = viewModel.getAllExercises().collectAsState(emptyList()).value
@@ -325,10 +337,11 @@ fun DisplayExercises(
         if (weekSortedAscending) filteredExercises.sortedBy { it.week }
         else filteredExercises.sortedByDescending { it.week }
     }
+
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
-                modifier = modifier.padding(16.dp),
+                modifier = Modifier.padding(16.dp),
                 onClick = { navController.navigate("add_exercise") },
                 content = { Icon(Icons.Filled.Add, contentDescription = "Add") }
             )
@@ -336,7 +349,7 @@ fun DisplayExercises(
         topBar = {
             val context = LocalContext.current
             CenterAlignedTopAppBar(
-                title = { Text("Exercise List") },
+                title = { Text("Exercise List", style = MaterialTheme.typography.titleLarge) },
                 navigationIcon = {
                     IconButton(onClick = {
                         val intent = Intent(context, MuscleMapActivity::class.java)
@@ -346,36 +359,81 @@ fun DisplayExercises(
                     }
                 }
             )
-        },
+        }
     ) { innerPadding ->
         Column(
-            modifier = modifier.padding(innerPadding),
-            verticalArrangement = Arrangement.SpaceBetween
+            modifier = modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
         ) {
             Dropdown(
-                label = "Muscle: ",
+                label = "Muscle:",
                 muscleList,
                 selected = selected,
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth()
             ) {
                 selectedIndex = it
             }
 
-            Row(modifier = Modifier.padding(start = 16.dp, end = 16.dp)) {
-                TitleText("Exercise")
-                TitleText("Muscle")
-                TitleText("Week") {
-                    weekSortedAscending = !weekSortedAscending
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                HeaderText("Exercise", Modifier.weight(2f))
+                HeaderText("Muscle", Modifier.weight(1.5f))
+                Row(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable { weekSortedAscending = !weekSortedAscending },
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    HeaderText("Week")
+                    Icon(
+                        imageVector = if (weekSortedAscending) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                        contentDescription = "Sort by week",
+                        modifier = Modifier.size(18.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
                 }
-                TitleText("Sets")
-                TitleText("Reps")
+                HeaderText("Sets", Modifier.weight(1f))
+                HeaderText("Reps", Modifier.weight(1f))
             }
 
+            HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant)
 
-            LazyColumn(modifier = Modifier.padding(start = 16.dp, end = 16.dp)) {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(8.dp)
+            ) {
                 items(displayedExercises) { exercise ->
-                    ExerciseRow(exercise) {
-                        navController.navigate("exercise/${exercise.id}")
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp)
+                            .clickable { navController.navigate("exercise/${exercise.id}") },
+                        elevation = CardDefaults.cardElevation(4.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant
+                        )
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(exercise.exerciseName, Modifier.weight(2f), style = MaterialTheme.typography.bodyLarge)
+                            Text(exercise.muscle, Modifier.weight(1.5f), style = MaterialTheme.typography.bodyMedium)
+                            Text(exercise.week.toString(), Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
+                            Text(exercise.sets.toString(), Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
+                            Text(exercise.reps.toString(), Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
+                        }
                     }
                 }
             }
@@ -383,6 +441,16 @@ fun DisplayExercises(
     }
 }
 
+@Composable
+private fun HeaderText(text: String, modifier: Modifier = Modifier) {
+    Text(
+        text,
+        modifier = modifier,
+        style = MaterialTheme.typography.labelLarge,
+        fontWeight = FontWeight.Bold,
+        color = MaterialTheme.colorScheme.primary
+    )
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -457,38 +525,6 @@ fun EditExerciseScreen(
         }
     }
 }
-@Composable
-fun ExerciseRow(exercise: Exercise, onClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(vertical = 8.dp)
-    ) {
-        Text(exercise.exerciseName, modifier = Modifier.weight(1f))
-        Text(exercise.muscle, modifier = Modifier.weight(1f))
-        Text(exercise.week.toString(), modifier = Modifier.weight(1f))
-        Text(exercise.sets.toString(), modifier = Modifier.weight(1f))
-        Text(exercise.reps.toString(), modifier = Modifier.weight(1f))
-    }
-}
-
-@Composable
-fun RowScope.TitleText(
-    t: String,
-    onClick: (() -> Unit)? = null
-) {
-    Text(
-        text = t,
-        style = AppTypography.titleMedium,
-        modifier = Modifier
-            .weight(1f)
-            .then(
-                if (onClick != null) Modifier.clickable { onClick() } else Modifier
-            )
-    )
-}
-
 
 @Composable
 fun Dropdown(label:String, names: List<String>, selected: String, modifier: Modifier=Modifier, onSelected: (Int) -> Unit) {
