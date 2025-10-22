@@ -201,7 +201,7 @@ fun AddExercise(
                         }
                     }
                 ) {
-                    Icon(Icons.Filled.Favorite, contentDescription = "AI Suggestion")
+                    Text(text = "AI")
                 }
             }
         }

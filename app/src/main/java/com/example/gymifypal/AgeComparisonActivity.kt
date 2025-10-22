@@ -151,7 +151,7 @@ fun AgeComparisonScreen(onBack: () -> Unit = {}) {
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { if (!isLoading) queryGemini() }
-            ) { Icon(Icons.Filled.Favorite, contentDescription = "AI Plan") }
+            ) { Text(text = "AI") }
         }
     ) { innerPadding ->
         Column(
