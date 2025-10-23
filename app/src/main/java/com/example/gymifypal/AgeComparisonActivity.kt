@@ -45,7 +45,7 @@ class AgeComparisonActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             GymifyPalTheme {
-                AgeComparisonScreen(onBack = { finish() })
+                AgeComparisonScreen()
             }
         }
     }
@@ -53,7 +53,7 @@ class AgeComparisonActivity : ComponentActivity() {
 //Compares Different Values to Give a Goal for Age Training
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AgeComparisonScreen(onBack: () -> Unit = {}) {
+fun AgeComparisonScreen() {
     val scope = rememberCoroutineScope()
     var exercise by remember { mutableStateOf("") }
     var age by remember { mutableStateOf("") }
