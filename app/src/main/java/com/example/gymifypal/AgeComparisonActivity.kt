@@ -127,11 +127,7 @@ fun AgeComparisonScreen(onBack: () -> Unit = {}) {
                 }
             )
         },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { if (!isLoading) queryGemini() }
-            ) { Text(text = "AI") }
-        }
+
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -182,7 +178,14 @@ fun AgeComparisonScreen(onBack: () -> Unit = {}) {
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(16.dp)
+            )
+                FloatingActionButton(
+                    onClick = { if (!isLoading) queryGemini() }
+
+                ) { Text(text = "AI") }
+
+            Spacer(Modifier.height(24.dp))
 
             if (isLoading || aiResponse.isNotEmpty()) {
                 Card(modifier = Modifier.fillMaxWidth()) {
