@@ -321,14 +321,14 @@ fun MuscleHeatmapPreview() {
             "Biceps" to mutableStateOf(0.0f),
             "Chest" to mutableStateOf(0.0f),
             "Front Deltoid" to mutableStateOf(0.0f),
-            "Side Deltoids" to mutableStateOf(0.0f),
-            "Front Forearms" to mutableStateOf(0.0f),
+            "Side Deltoid" to mutableStateOf(0.0f),
+            "Front Forearm" to mutableStateOf(0.0f),
             "Quadriceps" to mutableStateOf(0.0f),
             "Calves" to mutableStateOf(0.0f),
             "Glutes" to mutableStateOf(0.0f),
-            "Hamstrings" to mutableStateOf(0.0f),
-            "Rear Deltoids" to mutableStateOf(0.0f),
-            "Lats" to mutableStateOf(0.0f),
+            "Hamstring" to mutableStateOf(0.0f),
+            "Rear Deltoid" to mutableStateOf(0.0f),
+            "Latissimus (Lats)" to mutableStateOf(0.0f),
             "Rear Traps" to mutableStateOf(0.0f),
             "Triceps" to mutableStateOf(0.0f)
         )
@@ -412,17 +412,17 @@ fun MuscleHeatmapPreview() {
         MuscleFatigueMap(name = "Biceps", drawableResId = R.drawable.biceps, fatigueLevel = muscleFatigueStates["Biceps"]?.value ?: 0f, onClick = onMuscleClick),
         MuscleFatigueMap(name = "Chest", drawableResId = R.drawable.chest, fatigueLevel = muscleFatigueStates["Chest"]?.value ?: 0f, onClick = onMuscleClick),
         MuscleFatigueMap(name = "Front Deltoid", drawableResId = R.drawable.front_deltoids, fatigueLevel = muscleFatigueStates["Front Deltoid"]?.value ?: 0f, onClick = onMuscleClick),
-        MuscleFatigueMap(name = "Side Deltoids", drawableResId = R.drawable.side_deltoids, fatigueLevel = muscleFatigueStates["Side Deltoids"]?.value ?: 0f, onClick = onMuscleClick),
-        MuscleFatigueMap(name = "Front Forearms", drawableResId = R.drawable.front_forearms, fatigueLevel = muscleFatigueStates["Front Forearms"]?.value ?: 0f, onClick = onMuscleClick),
+        MuscleFatigueMap(name = "Side Deltoid", drawableResId = R.drawable.side_deltoids, fatigueLevel = muscleFatigueStates["Side Deltoid"]?.value ?: 0f, onClick = onMuscleClick),
+        MuscleFatigueMap(name = "Front Forearm", drawableResId = R.drawable.front_forearms, fatigueLevel = muscleFatigueStates["Front Forearm"]?.value ?: 0f, onClick = onMuscleClick),
         MuscleFatigueMap(name = "Quadriceps", drawableResId = R.drawable.quads, fatigueLevel = muscleFatigueStates["Quadriceps"]?.value ?: 0f, onClick = onMuscleClick)
     )
 
     val backMuscleList = listOf(
         MuscleFatigueMap(name = "Calves", drawableResId = R.drawable.calves, fatigueLevel = muscleFatigueStates["Calves"]?.value ?: 0f, onClick = onMuscleClick),
         MuscleFatigueMap(name = "Glutes", drawableResId = R.drawable.glutes, fatigueLevel = muscleFatigueStates["Glutes"]?.value ?: 0f, onClick = onMuscleClick),
-        MuscleFatigueMap(name = "Hamstrings", drawableResId = R.drawable.hamstrings, fatigueLevel = muscleFatigueStates["Hamstrings"]?.value ?: 0f, onClick = onMuscleClick),
-        MuscleFatigueMap(name = "Rear Deltoids", drawableResId = R.drawable.rear_deltoids, fatigueLevel = muscleFatigueStates["Rear Deltoids"]?.value ?: 0f, onClick = onMuscleClick),
-        MuscleFatigueMap(name = "Lats", drawableResId = R.drawable.lats, fatigueLevel = muscleFatigueStates["Lats"]?.value ?: 0f, onClick = onMuscleClick),
+        MuscleFatigueMap(name = "Hamstring", drawableResId = R.drawable.hamstrings, fatigueLevel = muscleFatigueStates["Hamstring"]?.value ?: 0f, onClick = onMuscleClick),
+        MuscleFatigueMap(name = "Rear Deltoid", drawableResId = R.drawable.rear_deltoids, fatigueLevel = muscleFatigueStates["Rear Deltoid"]?.value ?: 0f, onClick = onMuscleClick),
+        MuscleFatigueMap(name = "Latissimus (Lats)", drawableResId = R.drawable.lats, fatigueLevel = muscleFatigueStates["Latissimus (Lats)"]?.value ?: 0f, onClick = onMuscleClick),
         MuscleFatigueMap(name = "Rear Traps", drawableResId = R.drawable.rear_traps, fatigueLevel = muscleFatigueStates["Rear Traps"]?.value ?: 0f, onClick = onMuscleClick),
         MuscleFatigueMap(name = "Triceps", drawableResId = R.drawable.triceps, fatigueLevel = muscleFatigueStates["Triceps"]?.value ?: 0f, onClick = onMuscleClick)
     )
