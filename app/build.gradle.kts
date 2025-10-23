@@ -20,7 +20,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField("String", "apiKey", getApiKey("apiKey"))
+        buildConfigField("String", "apiKey", "\"\"")
     }
 
     buildTypes {
