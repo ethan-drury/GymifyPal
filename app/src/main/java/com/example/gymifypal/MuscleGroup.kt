@@ -7,7 +7,7 @@ enum class MuscleGroup(val displayName: String) {
     FrontDeltoid("Front Deltoid"),
     SideDeltoid("Side Deltoid"),
     FrontForearm("Front Forearm"),
-    Quads("Quads"),
+    Quadriceps("Quadriceps"),
     Calves("Calves"),
     Glutes("Glutes"),
     Hamstring("Hamstring"),
