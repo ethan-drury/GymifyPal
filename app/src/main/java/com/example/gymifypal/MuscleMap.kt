@@ -85,6 +85,7 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.core.content.ContextCompat.startActivity
 
 /*
  * Makes a transparent overlay that uses a bitmap to check the alpha val
@@ -316,13 +317,13 @@ fun MuscleHeatmapPreview() {
     //Initiate Fatigue levels
     val muscleFatigueStates = remember {
         mutableStateMapOf(
-            "Abdominals" to mutableStateOf(0.0f),
+            "Abdominal" to mutableStateOf(0.0f),
             "Biceps" to mutableStateOf(0.0f),
             "Chest" to mutableStateOf(0.0f),
-            "Front Deltoids" to mutableStateOf(0.0f),
+            "Front Deltoid" to mutableStateOf(0.0f),
             "Side Deltoids" to mutableStateOf(0.0f),
             "Front Forearms" to mutableStateOf(0.0f),
-            "quads" to mutableStateOf(0.0f),
+            "Quadriceps" to mutableStateOf(0.0f),
             "Calves" to mutableStateOf(0.0f),
             "Glutes" to mutableStateOf(0.0f),
             "Hamstrings" to mutableStateOf(0.0f),
@@ -375,7 +376,7 @@ fun MuscleHeatmapPreview() {
                 FrontDeltoid
                 SideDeltoid
                 FrontForearm
-                Quads
+                Quadriceps
                 Calves
                 Glutes
                 Hamstring
@@ -393,30 +394,27 @@ fun MuscleHeatmapPreview() {
             isLoadingAi = false
         }
     }
-
     val onMuscleClick: (String) -> Unit = { muscleName ->
         if (isMuscleEditMode) {
             selectedMuscleName = muscleName
             showFatigueSlider = true
         } else {
-            scope.launch{
-                snackbarHostState.showSnackbar(
-                    message = "Clicked: $muscleName",
-                    actionLabel = "Aight"
-                )
-            }
+            val intent = Intent(context, DatabaseViewActivity::class.java)
+            intent.putExtra("selectedMuscle", muscleName)
+            context.startActivity(intent)
         }
     }
 
+
     //Ties drawables to names
     val frontMuscleList = listOf(
-        MuscleFatigueMap(name = "Abdominals", drawableResId = R.drawable.abs, fatigueLevel = muscleFatigueStates["Abdominals"]?.value ?: 0f, onClick = onMuscleClick),
+        MuscleFatigueMap(name = "Abdominal", drawableResId = R.drawable.abs, fatigueLevel = muscleFatigueStates["Abdominal"]?.value ?: 0f, onClick = onMuscleClick),
         MuscleFatigueMap(name = "Biceps", drawableResId = R.drawable.biceps, fatigueLevel = muscleFatigueStates["Biceps"]?.value ?: 0f, onClick = onMuscleClick),
         MuscleFatigueMap(name = "Chest", drawableResId = R.drawable.chest, fatigueLevel = muscleFatigueStates["Chest"]?.value ?: 0f, onClick = onMuscleClick),
-        MuscleFatigueMap(name = "Front Deltoids", drawableResId = R.drawable.front_deltoids, fatigueLevel = muscleFatigueStates["Front Deltoids"]?.value ?: 0f, onClick = onMuscleClick),
+        MuscleFatigueMap(name = "Front Deltoid", drawableResId = R.drawable.front_deltoids, fatigueLevel = muscleFatigueStates["Front Deltoid"]?.value ?: 0f, onClick = onMuscleClick),
         MuscleFatigueMap(name = "Side Deltoids", drawableResId = R.drawable.side_deltoids, fatigueLevel = muscleFatigueStates["Side Deltoids"]?.value ?: 0f, onClick = onMuscleClick),
         MuscleFatigueMap(name = "Front Forearms", drawableResId = R.drawable.front_forearms, fatigueLevel = muscleFatigueStates["Front Forearms"]?.value ?: 0f, onClick = onMuscleClick),
-        MuscleFatigueMap(name = "quads", drawableResId = R.drawable.quads, fatigueLevel = muscleFatigueStates["quads"]?.value ?: 0f, onClick = onMuscleClick)
+        MuscleFatigueMap(name = "Quadriceps", drawableResId = R.drawable.quads, fatigueLevel = muscleFatigueStates["Quadriceps"]?.value ?: 0f, onClick = onMuscleClick)
     )
 
     val backMuscleList = listOf(
