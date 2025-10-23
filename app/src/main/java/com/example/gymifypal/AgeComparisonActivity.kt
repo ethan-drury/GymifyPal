@@ -72,7 +72,7 @@ class AgeComparisonActivity : ComponentActivity() {
         }
     }
 }
-
+//Compares Different Values to Give a Goal for Age Training
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AgeComparisonScreen(onBack: () -> Unit = {}) {
@@ -85,6 +85,7 @@ fun AgeComparisonScreen(onBack: () -> Unit = {}) {
     var isLoading by remember { mutableStateOf(false) }
     var aiResponse by remember { mutableStateOf("") }
 
+    //Gemini AI Response
     fun queryGemini() {
         if (exercise.isBlank() || age.isBlank() || weight.isBlank() || sex.isBlank()) {
             aiResponse = "Enter both exercise, age, weight and sex first."
