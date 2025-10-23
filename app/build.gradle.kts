@@ -21,7 +21,7 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         //500 Request Limit A Day
-        buildConfigField("String", "apiKey", "\"AIzaSyAYYSoargV0UPXdAYX_W1wXZoIwqoOlRLk\"")
+        buildConfigField("String", "apiKey", getApiKey("apiKey"))
     }
 
     buildTypes {
