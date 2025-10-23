@@ -2,7 +2,6 @@ package com.example.gymifypal
 
 import androidx.room.Dao
 import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
@@ -34,6 +33,4 @@ interface UniDao {
 
     @Query("DELETE FROM muscle_fatigue")
     suspend fun deleteAllFatigues()
-
-
 }

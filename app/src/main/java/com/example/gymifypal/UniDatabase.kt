@@ -5,7 +5,6 @@ import android.util.Log
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.RoomDatabase.Callback
 import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -25,20 +24,6 @@ abstract class UniDatabase : RoomDatabase() {
                     .build()
                     .also { Instance = it }
             }
-
-            // I need this below code for when we don't want to forcefully insert data
-            // I am just inserting data forcefully for testing purposes.
-            // So please don't delete :) or owe me campus kebab
-
-//            return Instance ?: synchronized(this) {
-//                val tempInstance = Room.databaseBuilder(
-//                    context.applicationContext,
-//                    UniDatabase::class.java,
-//                    "uni_database"
-//                ).build()
-//                Instance = tempInstance
-//                tempInstance
-//            }
         }
 
         private val roomDatabaseCallback: Callback = object : Callback() {
@@ -49,8 +34,31 @@ abstract class UniDatabase : RoomDatabase() {
                     val dao: UniDao = Instance!!.UniDao()
                     dao.deleteAllExercise()
 
-                    //exercise init
-                    val test = dao.insert(
+                    val insertAbdominal = dao.insert(
+                        Exercise(
+                            exerciseName = "Crunches",
+                            type = "Strength",
+                            muscle = "Abdominal",
+                            difficulty = "Easy",
+                            week = 1,
+                            sets = 3,
+                            reps = 15
+                        )
+                    )
+
+                    val insertBiceps = dao.insert(
+                        Exercise(
+                            exerciseName = "Bicep Curl",
+                            type = "Strength",
+                            muscle = "Biceps",
+                            difficulty = "Intermediate",
+                            week = 1,
+                            sets = 3,
+                            reps = 12
+                        )
+                    )
+
+                    val insertChest = dao.insert(
                         Exercise(
                             exerciseName = "Push-up",
                             type = "Strength",
@@ -62,15 +70,135 @@ abstract class UniDatabase : RoomDatabase() {
                         )
                     )
 
-                    val test2 = dao.insert(
+                    val insertFrontDeltoid = dao.insert(
                         Exercise(
-                            exerciseName = "Bench Press",
+                            exerciseName = "Front Raise",
                             type = "Strength",
-                            muscle = "Chest",
+                            muscle = "Front Deltoid",
                             difficulty = "Intermediate",
                             week = 1,
                             sets = 3,
+                            reps = 10
+                        )
+                    )
+
+                    val insertSideDeltoid = dao.insert(
+                        Exercise(
+                            exerciseName = "Lateral Raise",
+                            type = "Strength",
+                            muscle = "Side Deltoid",
+                            difficulty = "Intermediate",
+                            week = 1,
+                            sets = 3,
+                            reps = 12
+                        )
+                    )
+
+                    val insertFrontForearm = dao.insert(
+                        Exercise(
+                            exerciseName = "Wrist Curl",
+                            type = "Strength",
+                            muscle = "Front Forearm",
+                            difficulty = "Easy",
+                            week = 1,
+                            sets = 3,
+                            reps = 15
+                        )
+                    )
+
+                    val insertQuadriceps = dao.insert(
+                        Exercise(
+                            exerciseName = "Squat",
+                            type = "Strength",
+                            muscle = "Quadriceps",
+                            difficulty = "Intermediate",
+                            week = 1,
+                            sets = 4,
+                            reps = 10
+                        )
+                    )
+
+                    val insertCalves = dao.insert(
+                        Exercise(
+                            exerciseName = "Calf Raise",
+                            type = "Strength",
+                            muscle = "Calves",
+                            difficulty = "Easy",
+                            week = 1,
+                            sets = 3,
+                            reps = 15
+                        )
+                    )
+
+                    val insertGlutes = dao.insert(
+                        Exercise(
+                            exerciseName = "Glute Bridge",
+                            type = "Strength",
+                            muscle = "Glutes",
+                            difficulty = "Easy",
+                            week = 1,
+                            sets = 3,
+                            reps = 12
+                        )
+                    )
+
+                    val insertHamstring = dao.insert(
+                        Exercise(
+                            exerciseName = "Leg Curl",
+                            type = "Strength",
+                            muscle = "Hamstring",
+                            difficulty = "Intermediate",
+                            week = 1,
+                            sets = 3,
+                            reps = 10
+                        )
+                    )
+
+                    val insertRearDeltoid = dao.insert(
+                        Exercise(
+                            exerciseName = "Reverse Fly",
+                            type = "Strength",
+                            muscle = "Rear Deltoid",
+                            difficulty = "Intermediate",
+                            week = 1,
+                            sets = 3,
+                            reps = 12
+                        )
+                    )
+
+                    val insertLatissimus = dao.insert(
+                        Exercise(
+                            exerciseName = "Pull-up",
+                            type = "Strength",
+                            muscle = "Latissimus (Lats)",
+                            difficulty = "Advanced",
+                            week = 1,
+                            sets = 3,
                             reps = 8
+                        )
+                    )
+
+                    val insertRearTraps = dao.insert(
+                        Exercise(
+                            exerciseName = "Shrugs",
+                            type = "Strength",
+                            muscle = "Rear Traps",
+                            difficulty = "Intermediate",
+                            week = 1,
+                            sets = 3,
+                            reps = 12
+                        )
+                    )
+
+                    val insertTriceps = dao.insert(
+                        Exercise(
+                            exerciseName = "Tricep Dips",
+                            type = "Strength",
+                            muscle = "Triceps",
+                            difficulty = "Intermediate",
+                            week = 2,
+                            sets = 3,
+                            reps = 10
                         )
                     )
 
